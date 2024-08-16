@@ -10,6 +10,7 @@ function Home() {
           <li><Link to="/popular">Popular Movies</Link></li>
           <li><Link to="/actors">Actors</Link></li>
           <li><Link to="/tv-series">TV Series</Link></li>
+          <li><Link to="/fantasy-movie">Create Fantasy Movie</Link></li>
         </ul>
       </nav>
     </div>
