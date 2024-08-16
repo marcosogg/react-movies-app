@@ -1,34 +1,90 @@
-import axios from 'axios';
+const apiKey = process.env.REACT_APP_TMDB_KEY;
 
-const API_KEY = '901dd8a13aec35b683be8bf5e6260d7b';
-const BASE_URL = 'https://api.themoviedb.org/3';
-
-export const getPopularMovies = async (page = 1) => {
-  const response = await fetch(
-    `https://api.themoviedb.org/3/movie/popular?api_key=${API_KEY}&language=en-US&page=${page}`
-  );
+const handleResponse = async (response) => {
   if (!response.ok) {
-    throw new Error('Network response was not ok');
+    const error = await response.json();
+    throw new Error(error.status_message || 'Network response was not ok');
   }
   return response.json();
 };
 
+const makeRequest = async (endpoint, params = {}) => {
+  if (!apiKey) {
+    console.error('TMDB API key is not set');
+    throw new Error('TMDB API key is not set');
+  }
+  const url = new URL(`https://api.themoviedb.org/3${endpoint}`);
+  url.searchParams.append('api_key', apiKey);
+  Object.entries(params).forEach(([key, value]) => {
+    url.searchParams.append(key, value.toString());
+  });
+  console.log('Making request to:', url.toString());
+  const response = await fetch(url.toString());
+  console.log('Response status:', response.status);
+  return handleResponse(response);
+};
+
+export const getPopularMovies = async (page = 1) => {
+  return makeRequest('/movie/popular', { language: 'en-US', page });
+};
+
 export const getMovieDetails = async (id) => {
-  const response = await axios.get(`${BASE_URL}/movie/${id}?api_key=${API_KEY}&append_to_response=credits,similar`);
-  return response.data;
+  return makeRequest(`/movie/${id}`, { language: 'en-US' });
 };
 
 export const getActorDetails = async (id) => {
-  const response = await axios.get(`${BASE_URL}/person/${id}?api_key=${API_KEY}&append_to_response=movie_credits`);
-  return response.data;
+  return makeRequest(`/person/${id}`, { language: 'en-US' });
 };
 
 export const getCollectionDetails = async (id) => {
-  const response = await axios.get(`${BASE_URL}/collection/${id}?api_key=${API_KEY}`);
-  return response.data;
+  return makeRequest(`/collection/${id}`, { language: 'en-US' });
 };
 
-export const getPopularActors = async () => {
-  const response = await axios.get(`${BASE_URL}/person/popular?api_key=${API_KEY}`);
-  return response.data.results;
+export const getPopularActors = async (page = 1) => {
+  return makeRequest('/person/popular', { language: 'en-US', page });
+};
+
+export const getPopularTVSeries = async (page = 1) => {
+  return makeRequest('/tv/popular', { language: 'en-US', page });
+};
+
+export const searchMulti = async ({ query, type, year, genre, page = 1 }) => {
+  const params = {
+    language: 'en-US',
+    query,
+    include_adult: false,
+    page
+  };
+  if (type) params.type = type;
+  if (year) params.year = year;
+  if (genre) params.with_genres = genre;
+  return makeRequest('/search/multi', params);
+};
+
+export const getTVSeriesDetails = async (id) => {
+  return makeRequest(`/tv/${id}`, { language: 'en-US' });
+};
+
+export const getMovieCredits = async (id) => {
+  return makeRequest(`/movie/${id}/credits`, { language: 'en-US' });
+};
+
+export const getTVSeriesCredits = async (id) => {
+  return makeRequest(`/tv/${id}/credits`, { language: 'en-US' });
+};
+
+export const getSimilarMovies = async (id, page = 1) => {
+  return makeRequest(`/movie/${id}/similar`, { language: 'en-US', page });
+};
+
+export const getSimilarTVSeries = async (id, page = 1) => {
+  return makeRequest(`/tv/${id}/similar`, { language: 'en-US', page });
+};
+
+export const getActorMovieCredits = async (id) => {
+  return makeRequest(`/person/${id}/movie_credits`, { language: 'en-US' });
+};
+
+export const getActorTVCredits = async (id) => {
+  return makeRequest(`/person/${id}/tv_credits`, { language: 'en-US' });
 };
