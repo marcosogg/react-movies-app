@@ -1,5 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from 'react-query';
+import { AuthProvider } from './context/AuthContext';
 import Home from './components/Home';
 import PopularMovies from './components/PopularMovies';
 import Actors from './components/Actors';
@@ -8,24 +10,39 @@ import MovieDetails from './components/MovieDetails';
 import ActorDetails from './components/ActorDetails';
 import CollectionDetails from './components/CollectionDetails';
 import FantasyMovie from './components/FantasyMovie';
+import Login from './components/Login';
+import PrivateRoute from './components/PrivateRoute';
+
+const queryClient = new QueryClient();
 
 function App() {
   return (
-    <Router>
-      <div className="App">
-        <h1>React Movies App</h1>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/popular" element={<PopularMovies />} />
-          <Route path="/actors" element={<Actors />} />
-          <Route path="/tv-series" element={<TVSeries />} />
-          <Route path="/movie/:id" element={<MovieDetails />} />
-          <Route path="/actor/:id" element={<ActorDetails />} />
-          <Route path="/collection/:id" element={<CollectionDetails />} />
-          <Route path="/fantasy-movie" element={<FantasyMovie />} />
-        </Routes>
-      </div>
-    </Router>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <Router>
+          <div className="App">
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/popular-movies" element={<PopularMovies />} />
+              <Route path="/actors" element={<Actors />} />
+              <Route path="/tv-series" element={<TVSeries />} />
+              <Route path="/movie/:id" element={<MovieDetails />} />
+              <Route path="/actor/:id" element={<ActorDetails />} />
+              <Route path="/collection/:id" element={<CollectionDetails />} />
+              <Route 
+                path="/fantasy-movie" 
+                element={
+                  <PrivateRoute>
+                    <FantasyMovie />
+                  </PrivateRoute>
+                } 
+              />
+              <Route path="/login" element={<Login />} />
+            </Routes>
+          </div>
+        </Router>
+      </AuthProvider>
+    </QueryClientProvider>
   );
 }
 
