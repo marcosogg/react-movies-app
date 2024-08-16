@@ -1,37 +1,46 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { useQuery } from 'react-query';
 import { getPopularMovies } from '../api/tmdb-api';
+import { Link } from 'react-router-dom';
 
-function PopularMovies() {
-  const [filterYear, setFilterYear] = useState('');
-  const { data: movies, isLoading, isError } = useQuery('popularMovies', getPopularMovies);
+const PopularMovies = () => {
+  const [page, setPage] = useState(1);
+  const { data, isLoading, isError, error } = useQuery(
+    ['popularMovies', page],
+    () => getPopularMovies(page),
+    { keepPreviousData: true }
+  );
 
   if (isLoading) return <div>Loading...</div>;
-  if (isError) return <div>Error fetching movies</div>;
-
-  const filteredMovies = filterYear
-    ? movies.filter(movie => movie.release_date.startsWith(filterYear))
-    : movies;
+  if (isError) return <div>Error: {error.message}</div>;
 
   return (
     <div>
-      <h2>Popular Movies</h2>
-      <input
-        type="text"
-        placeholder="Filter by year (e.g., 2023)"
-        value={filterYear}
-        onChange={(e) => setFilterYear(e.target.value)}
-      />
+      <h1>Popular Movies</h1>
       <ul>
-        {filteredMovies.map(movie => (
+        {data.results.map((movie) => (
           <li key={movie.id}>
-            <Link to={`/movie/${movie.id}`}>{movie.title}</Link> ({movie.release_date.split('-')[0]})
+            <Link to={`/movie/${movie.id}`}>{movie.title}</Link>
           </li>
         ))}
       </ul>
+      <div>
+        <button 
+          onClick={() => setPage((old) => Math.max(old - 1, 1))} 
+          disabled={page === 1}
+        >
+          Previous Page
+        </button>
+        <span>Page {page}</span>
+        <button 
+          onClick={() => setPage((old) => old + 1)} 
+          disabled={!data.hasMore}
+        >
+          Next Page
+        </button>
+      </div>
     </div>
   );
-}
+};
 
 export default PopularMovies;
