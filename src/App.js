@@ -5,6 +5,8 @@ import PopularMovies from './components/PopularMovies';
 import Actors from './components/Actors';
 import TVSeries from './components/TVSeries';
 import MovieDetails from './components/MovieDetails';
+import ActorDetails from './components/ActorDetails';
+import CollectionDetails from './components/CollectionDetails';
 import FantasyMovie from './components/FantasyMovie';
 
 function App() {
@@ -18,6 +20,8 @@ function App() {
           <Route path="/actors" element={<Actors />} />
           <Route path="/tv-series" element={<TVSeries />} />
           <Route path="/movie/:id" element={<MovieDetails />} />
+          <Route path="/actor/:id" element={<ActorDetails />} />
+          <Route path="/collection/:id" element={<CollectionDetails />} />
           <Route path="/fantasy-movie" element={<FantasyMovie />} />
         </Routes>
       </div>
