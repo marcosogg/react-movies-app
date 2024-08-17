@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useQuery } from 'react-query';
-import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { getPopularMovies } from '../api/tmdb-api';
+import MovieCard from './MovieCard';
 
 const PopularMovies = () => {
   const { t } = useTranslation();
@@ -17,26 +17,14 @@ const PopularMovies = () => {
       <h1 className="text-3xl font-bold mb-6">{t('popularMovies')}</h1>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
         {data.results.map((movie) => (
-          <Link key={movie.id} to={`/movie/${movie.id}`} className="block">
-            <div className="bg-white rounded-lg shadow-md overflow-hidden transition-transform hover:scale-105">
-              <img
-                src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-                alt={`${movie.title} poster`}
-                className="w-full h-auto"
-              />
-              <div className="p-2">
-                <h2 className="text-sm font-semibold truncate">{movie.title}</h2>
-                <p className="text-xs text-gray-600">{new Date(movie.release_date).getFullYear()}</p>
-              </div>
-            </div>
-          </Link>
+          <MovieCard key={movie.id} movie={movie} />
         ))}
       </div>
       <div className="mt-8 flex justify-center space-x-4">
         <button
           onClick={() => setPage((old) => Math.max(old - 1, 1))}
           disabled={page === 1}
-          className="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300"
+          className="px-4 py-2 bg-accent-red text-white rounded disabled:bg-gray-300 transition-colors"
         >
           {t('previousPage')}
         </button>
@@ -44,7 +32,7 @@ const PopularMovies = () => {
         <button
           onClick={() => setPage((old) => old + 1)}
           disabled={!data.results.length}
-          className="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300"
+          className="px-4 py-2 bg-accent-red text-white rounded disabled:bg-gray-300 transition-colors"
         >
           {t('nextPage')}
         </button>
