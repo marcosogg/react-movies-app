@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
+import React, { createContext, useState, useContext, useEffect } from 'react';
 import { supabase } from '../supabase';
 import { useAuth } from './AuthContext';
 
@@ -7,29 +7,30 @@ const FavoritesContext = createContext();
 export const useFavorites = () => useContext(FavoritesContext);
 
 export const FavoritesProvider = ({ children }) => {
-  const [favorites, setFavorites] = useState({ actors: [], tvSeries: [] });
+  const [favorites, setFavorites] = useState({ movies: [], actors: [], tvSeries: [] });
   const { user } = useAuth();
 
-  const fetchFavorites = useCallback(async () => {
+  useEffect(() => {
     if (user) {
-      const { data, error } = await supabase
-        .from('favorites')
-        .select('*')
-        .eq('user_id', user.id);
-
-      if (error) {
-        console.error('Error fetching favorites:', error);
-      } else {
-        const actors = data.filter(item => item.type === 'actor');
-        const tvSeries = data.filter(item => item.type === 'tvSeries');
-        setFavorites({ actors, tvSeries });
-      }
+      fetchFavorites();
     }
   }, [user]);
 
-  useEffect(() => {
-    fetchFavorites();
-  }, [fetchFavorites]);
+  const fetchFavorites = async () => {
+    const { data, error } = await supabase
+      .from('favorites')
+      .select('*')
+      .eq('user_id', user.id);
+
+    if (error) {
+      console.error('Error fetching favorites:', error);
+    } else {
+      const movies = data.filter(item => item.type === 'movie');
+      const actors = data.filter(item => item.type === 'actor');
+      const tvSeries = data.filter(item => item.type === 'tvSeries');
+      setFavorites({ movies, actors, tvSeries });
+    }
+  };
 
   const addFavorite = async (type, item) => {
     const { data, error } = await supabase

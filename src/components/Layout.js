@@ -2,9 +2,11 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import LanguageSwitcher from './LanguageSwitcher';
+import { useAuth } from '../context/AuthContext';
 
 const Layout = ({ children }) => {
   const { t } = useTranslation();
+  const { user, signOut } = useAuth();
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -17,6 +19,18 @@ const Layout = ({ children }) => {
               <li><Link to="/actors">{t('nav.actors')}</Link></li>
               <li><Link to="/tv-series">{t('nav.tvSeries')}</Link></li>
               <li><Link to="/search">{t('nav.search')}</Link></li>
+              {user && (
+                <>
+                  <li><Link to="/fantasy-movie">{t('nav.fantasyMovie')}</Link></li>
+                  <li><Link to="/favorites">{t('nav.favorites')}</Link></li>
+                  <li><Link to="/themed-playlist">{t('nav.themedPlaylist')}</Link></li>
+                </>
+              )}
+              {user ? (
+                <li><button onClick={signOut}>{t('logout')}</button></li>
+              ) : (
+                <li><Link to="/login">{t('login')}</Link></li>
+              )}
             </ul>
           </nav>
           <LanguageSwitcher />

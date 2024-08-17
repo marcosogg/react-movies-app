@@ -13,7 +13,7 @@ export const getPopularMovies = async (page = 1) => {
 
 export const getMovieDetails = async (id) => {
   const response = await fetch(
-    `${BASE_URL}/movie/${id}?api_key=${API_KEY}&language=en-US&append_to_response=credits,similar`
+    `${BASE_URL}/movie/${id}?api_key=${API_KEY}&language=en-US&append_to_response=credits`
   );
   if (!response.ok) {
     throw new Error('Network response was not ok');
@@ -53,7 +53,7 @@ export const getPopularTVSeries = async (page = 1) => {
 
 export const getTVSeriesDetails = async (id) => {
   const response = await fetch(
-    `${BASE_URL}/tv/${id}?api_key=${API_KEY}&language=en-US&append_to_response=credits,similar`
+    `${BASE_URL}/tv/${id}?api_key=${API_KEY}&language=en-US&append_to_response=credits`
   );
   if (!response.ok) {
     throw new Error('Network response was not ok');

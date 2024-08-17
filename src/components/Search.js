@@ -29,60 +29,86 @@ const Search = () => {
   };
 
   return (
-    <div>
-      <h1>{t('search.title')}</h1>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          name="query"
-          value={searchParams.query}
-          onChange={handleInputChange}
-          placeholder={t('search.placeholder')}
-          required
-        />
-        <select name="type" value={searchParams.type} onChange={handleInputChange}>
-          <option value="">{t('search.type.all')}</option>
-          <option value="movie">{t('search.type.movies')}</option>
-          <option value="tv">{t('search.type.tvShows')}</option>
-          <option value="person">{t('search.type.people')}</option>
-        </select>
-        <input
-          type="number"
-          name="year"
-          value={searchParams.year}
-          onChange={handleInputChange}
-          placeholder={t('search.year')}
-        />
-        <input
-          type="text"
-          name="genre"
-          value={searchParams.genre}
-          onChange={handleInputChange}
-          placeholder={t('search.genre')}
-        />
-        <button type="submit">{t('search.submit')}</button>
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-6">{t('search.title')}</h1>
+      <form onSubmit={handleSubmit} className="mb-8">
+        <div className="flex flex-wrap -mx-2 mb-4">
+          <div className="w-full md:w-1/2 px-2 mb-4">
+            <input
+              type="text"
+              name="query"
+              value={searchParams.query}
+              onChange={handleInputChange}
+              placeholder={t('search.placeholder')}
+              className="w-full px-3 py-2 border rounded"
+              required
+            />
+          </div>
+          <div className="w-full md:w-1/2 px-2 mb-4">
+            <select 
+              name="type" 
+              value={searchParams.type} 
+              onChange={handleInputChange}
+              className="w-full px-3 py-2 border rounded"
+            >
+              <option value="">{t('search.type.all')}</option>
+              <option value="movie">{t('search.type.movies')}</option>
+              <option value="tv">{t('search.type.tvShows')}</option>
+              <option value="person">{t('search.type.people')}</option>
+            </select>
+          </div>
+        </div>
+        <div className="flex flex-wrap -mx-2 mb-4">
+          <div className="w-full md:w-1/2 px-2 mb-4">
+            <input
+              type="number"
+              name="year"
+              value={searchParams.year}
+              onChange={handleInputChange}
+              placeholder={t('search.year')}
+              className="w-full px-3 py-2 border rounded"
+            />
+          </div>
+          <div className="w-full md:w-1/2 px-2 mb-4">
+            <input
+              type="text"
+              name="genre"
+              value={searchParams.genre}
+              onChange={handleInputChange}
+              placeholder={t('search.genre')}
+              className="w-full px-3 py-2 border rounded"
+            />
+          </div>
+        </div>
+        <button type="submit" className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600">
+          {t('search.submit')}
+        </button>
       </form>
 
-      {isLoading && <div>{t('loading')}</div>}
-      {isError && <div>{t('error')}</div>}
+      {isLoading && <div className="text-center">{t('loading')}</div>}
+      {isError && <div className="text-center text-red-500">{t('error')}</div>}
       {data && (
         <div>
-          <h2>{t('search.results')}</h2>
-          <ul>
+          <h2 className="text-2xl font-bold mb-4">{t('search.results')}</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {data.results.map((item) => (
-              <li key={item.id}>
-                {item.media_type === 'movie' && (
-                  <Link to={`/movie/${item.id}`}>{item.title}</Link>
-                )}
-                {item.media_type === 'tv' && (
-                  <Link to={`/tv/${item.id}`}>{item.name}</Link>
-                )}
-                {item.media_type === 'person' && (
-                  <Link to={`/actor/${item.id}`}>{item.name}</Link>
-                )}
-              </li>
+              <Link 
+                key={item.id} 
+                to={`/${item.media_type}/${item.id}`} 
+                className="block bg-white rounded-lg shadow-md overflow-hidden transition-transform hover:scale-105"
+              >
+                <img
+                  src={`https://image.tmdb.org/t/p/w500${item.poster_path || item.profile_path}`}
+                  alt={item.title || item.name}
+                  className="w-full h-auto"
+                />
+                <div className="p-2">
+                  <h3 className="text-sm font-semibold truncate">{item.title || item.name}</h3>
+                  <p className="text-xs text-gray-600">{item.media_type}</p>
+                </div>
+              </Link>
             ))}
-          </ul>
+          </div>
         </div>
       )}
     </div>

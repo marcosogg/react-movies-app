@@ -10,12 +10,7 @@ const PopularMovies = () => {
   const { data, isLoading, isError, error } = useQuery(['popularMovies', page], () => getPopularMovies(page));
 
   if (isLoading) return <div className="text-center mt-8">{t('loading')}</div>;
-  if (isError) return (
-    <div className="max-w-md mx-auto mt-8 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
-      <h2 className="font-bold">{t('error')}</h2>
-      <p>{error.message}</p>
-    </div>
-  );
+  if (isError) return <div className="text-center mt-8 text-red-500">{t('error')}: {error.message}</div>;
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -31,6 +26,7 @@ const PopularMovies = () => {
               />
               <div className="p-2">
                 <h2 className="text-sm font-semibold truncate">{movie.title}</h2>
+                <p className="text-xs text-gray-600">{new Date(movie.release_date).getFullYear()}</p>
               </div>
             </div>
           </Link>
@@ -44,6 +40,7 @@ const PopularMovies = () => {
         >
           {t('previousPage')}
         </button>
+        <span className="px-4 py-2">{t('page')} {page}</span>
         <button
           onClick={() => setPage((old) => old + 1)}
           disabled={!data.results.length}

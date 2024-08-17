@@ -1,67 +1,54 @@
 import React, { useState } from 'react';
 import { useQuery } from 'react-query';
 import { Link } from 'react-router-dom';
-import { getPopularTVSeries } from '../api/tmdb-api';
-import { useFavorites } from '../context/FavoritesContext';
 import { useTranslation } from 'react-i18next';
+import { getPopularTVSeries } from '../api/tmdb-api';
 
 const TVSeries = () => {
   const { t } = useTranslation();
-  const { favorites, addFavorite, removeFavorite } = useFavorites();
   const [page, setPage] = useState(1);
-  const { data, error, isLoading, isError } = useQuery(
+  const { data, isLoading, isError, error } = useQuery(
     ['popularTVSeries', page],
     () => getPopularTVSeries(page),
     { keepPreviousData: true }
   );
 
-  if (isLoading) return <div>{t('loading')}</div>;
-  if (isError) return <div>{t('error')}: {error.message}</div>;
-
-  const toggleFavorite = (series) => {
-    const isFavorite = favorites.tvSeries.some(fav => fav.item_id === series.id);
-    if (isFavorite) {
-      removeFavorite('tvSeries', series.id);
-    } else {
-      addFavorite('tvSeries', series);
-    }
-  };
+  if (isLoading) return <div className="text-center mt-8">{t('loading')}</div>;
+  if (isError) return <div className="text-center mt-8 text-red-500">{t('error')}: {error.message}</div>;
 
   return (
-    <div>
-      <h2>{t('popularTVSeries')}</h2>
-      <div className="tv-series-grid">
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-6">{t('popularTVSeries')}</h1>
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
         {data.results.map((series) => (
-          <div key={series.id} className="tv-series-card">
-            <Link to={`/tv/${series.id}`}>
+          <Link key={series.id} to={`/tv/${series.id}`} className="block">
+            <div className="bg-white rounded-lg shadow-md overflow-hidden transition-transform hover:scale-105">
               <img
-                src={`https://image.tmdb.org/t/p/w200${series.poster_path}`}
+                src={`https://image.tmdb.org/t/p/w500${series.poster_path}`}
                 alt={series.name}
+                className="w-full h-auto"
               />
-              <h3>{series.name}</h3>
-            </Link>
-            <button onClick={() => toggleFavorite(series)}>
-              {favorites.tvSeries.some(fav => fav.item_id === series.id)
-                ? t('removeFromFavorites')
-                : t('addToFavorites')}
-            </button>
-            <p>{t('firstAirDate')}: {series.first_air_date}</p>
-            <p>{t('voteAverage')}: {series.vote_average}</p>
-            <p>{t('overview')}: {series.overview.slice(0, 100)}...</p>
-          </div>
+              <div className="p-2">
+                <h2 className="text-sm font-semibold truncate">{series.name}</h2>
+                <p className="text-xs text-gray-600">{new Date(series.first_air_date).getFullYear()}</p>
+              </div>
+            </div>
+          </Link>
         ))}
       </div>
-      <div>
-        <button 
-          onClick={() => setPage((old) => Math.max(old - 1, 1))} 
+      <div className="mt-8 flex justify-center space-x-4">
+        <button
+          onClick={() => setPage((old) => Math.max(old - 1, 1))}
           disabled={page === 1}
+          className="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300"
         >
           {t('previousPage')}
         </button>
-        <span>{t('page')} {page}</span>
-        <button 
-          onClick={() => setPage((old) => old + 1)} 
+        <span className="px-4 py-2">{t('page')} {page}</span>
+        <button
+          onClick={() => setPage((old) => old + 1)}
           disabled={!data.results.length}
+          className="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300"
         >
           {t('nextPage')}
         </button>

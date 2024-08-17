@@ -1,41 +1,81 @@
 import React from 'react';
 import { useQuery } from 'react-query';
 import { useParams, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { getTVSeriesDetails } from '../api/tmdb-api';
+import { useFavorites } from '../context/FavoritesContext';
 
 const TVSeriesDetails = () => {
   const { id } = useParams();
-  const { data: tvSeries, isLoading, isError } = useQuery(['tvSeries', id], () => getTVSeriesDetails(id));
+  const { t } = useTranslation();
+  const { favorites, addFavorite, removeFavorite } = useFavorites();
 
-  if (isLoading) return <div>Loading...</div>;
-  if (isError) return <div>Error fetching TV series details</div>;
+  const { data: series, isLoading, isError, error } = useQuery(['tvSeries', id], () => getTVSeriesDetails(id));
+
+  if (isLoading) return <div className="text-center mt-8">{t('loading')}</div>;
+  if (isError) return <div className="text-center mt-8 text-red-500">{t('error')}: {error.message}</div>;
+
+  const isFavorite = favorites.tvSeries.some(fav => fav.item_id === series.id);
+
+  const handleFavoriteClick = () => {
+    if (isFavorite) {
+      removeFavorite('tvSeries', series.id);
+    } else {
+      addFavorite('tvSeries', series);
+    }
+  };
 
   return (
-    <div>
-      <h1>{tvSeries.name}</h1>
-      <p>{tvSeries.overview}</p>
-      <h2>Genres</h2>
-      <ul>
-        {tvSeries.genres.map(genre => (
-          <li key={genre.id}>{genre.name}</li>
-        ))}
-      </ul>
-      <h2>Cast</h2>
-      <ul>
-        {tvSeries.credits.cast.slice(0, 5).map(actor => (
-          <li key={actor.id}>
-            <Link to={`/actor/${actor.id}`}>{actor.name}</Link> as {actor.character}
-          </li>
-        ))}
-      </ul>
-      <h2>Similar TV Series</h2>
-      <ul>
-        {tvSeries.similar.results.slice(0, 5).map(similarSeries => (
-          <li key={similarSeries.id}>
-            <Link to={`/tv/${similarSeries.id}`}>{similarSeries.name}</Link>
-          </li>
-        ))}
-      </ul>
+    <div className="container mx-auto px-4 py-8">
+      <div className="flex flex-col md:flex-row">
+        <div className="md:w-1/3">
+          <img
+            src={`https://image.tmdb.org/t/p/w500${series.poster_path}`}
+            alt={series.name}
+            className="w-full rounded-lg shadow-lg"
+          />
+        </div>
+        <div className="md:w-2/3 md:pl-8 mt-4 md:mt-0">
+          <h1 className="text-3xl font-bold mb-4">{series.name}</h1>
+          <p className="text-gray-600 mb-4">{series.tagline}</p>
+          <p className="mb-4">{series.overview}</p>
+          <div className="mb-4">
+            <strong>{t('genres')}:</strong> {series.genres.map(g => g.name).join(', ')}
+          </div>
+          <div className="mb-4">
+            <strong>{t('firstAirDate')}:</strong> {new Date(series.first_air_date).toLocaleDateString()}
+          </div>
+          <div className="mb-4">
+            <strong>{t('numberOfSeasons')}:</strong> {series.number_of_seasons}
+          </div>
+          <div className="mb-4">
+            <strong>{t('numberOfEpisodes')}:</strong> {series.number_of_episodes}
+          </div>
+          <div className="mb-4">
+            <strong>{t('rating')}:</strong> {series.vote_average.toFixed(1)}/10
+          </div>
+          <button
+            onClick={handleFavoriteClick}
+            className={`mt-4 px-4 py-2 rounded ${isFavorite ? 'bg-red-500' : 'bg-blue-500'} text-white`}
+          >
+            {isFavorite ? t('removeFromFavorites') : t('addToFavorites')}
+          </button>
+          <h2 className="text-2xl font-bold mt-8 mb-4">{t('cast')}</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+            {series.credits.cast.slice(0, 8).map((actor) => (
+              <Link key={actor.id} to={`/actor/${actor.id}`} className="text-center">
+                <img
+                  src={`https://image.tmdb.org/t/p/w200${actor.profile_path}`}
+                  alt={actor.name}
+                  className="w-full rounded-lg shadow-md"
+                />
+                <p className="mt-2 font-semibold">{actor.name}</p>
+                <p className="text-sm text-gray-600">{actor.character}</p>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
