@@ -1,90 +1,188 @@
-const apiKey = process.env.REACT_APP_TMDB_KEY;
-
-const handleResponse = async (response) => {
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.status_message || 'Network response was not ok');
-  }
-  return response.json();
-};
-
-const makeRequest = async (endpoint, params = {}) => {
-  if (!apiKey) {
-    console.error('TMDB API key is not set');
-    throw new Error('TMDB API key is not set');
-  }
-  const url = new URL(`https://api.themoviedb.org/3${endpoint}`);
-  url.searchParams.append('api_key', apiKey);
-  Object.entries(params).forEach(([key, value]) => {
-    url.searchParams.append(key, value.toString());
-  });
-  console.log('Making request to:', url.toString());
-  const response = await fetch(url.toString());
-  console.log('Response status:', response.status);
-  return handleResponse(response);
-};
+const BASE_URL = 'https://api.themoviedb.org/3';
 
 export const getPopularMovies = async (page = 1) => {
-  return makeRequest('/movie/popular', { language: 'en-US', page });
+  const url = `${BASE_URL}/movie/popular?api_key=${process.env.REACT_APP_TMDB_KEY}&language=en-US&page=${page}`;
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return await response.json();
+  } catch (error) {
+    throw error;
+  }
 };
 
 export const getMovieDetails = async (id) => {
-  return makeRequest(`/movie/${id}`, { language: 'en-US' });
+  const url = `${BASE_URL}/movie/${id}?api_key=${process.env.REACT_APP_TMDB_KEY}&language=en-US&append_to_response=credits,similar`;
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return await response.json();
+  } catch (error) {
+    throw error;
+  }
 };
 
 export const getActorDetails = async (id) => {
-  return makeRequest(`/person/${id}`, { language: 'en-US' });
+  const url = `${BASE_URL}/person/${id}?api_key=${process.env.REACT_APP_TMDB_KEY}&language=en-US&append_to_response=movie_credits,tv_credits`;
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return await response.json();
+  } catch (error) {
+    throw error;
+  }
 };
 
 export const getCollectionDetails = async (id) => {
-  return makeRequest(`/collection/${id}`, { language: 'en-US' });
+  const url = `${BASE_URL}/collection/${id}?api_key=${process.env.REACT_APP_TMDB_KEY}&language=en-US`;
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return await response.json();
+  } catch (error) {
+    throw error;
+  }
 };
 
 export const getPopularActors = async (page = 1) => {
-  return makeRequest('/person/popular', { language: 'en-US', page });
+  const url = `${BASE_URL}/person/popular?api_key=${process.env.REACT_APP_TMDB_KEY}&language=en-US&page=${page}`;
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return await response.json();
+  } catch (error) {
+    throw error;
+  }
 };
 
 export const getPopularTVSeries = async (page = 1) => {
-  return makeRequest('/tv/popular', { language: 'en-US', page });
+  const url = `${BASE_URL}/tv/popular?api_key=${process.env.REACT_APP_TMDB_KEY}&language=en-US&page=${page}`;
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return await response.json();
+  } catch (error) {
+    throw error;
+  }
 };
 
 export const searchMulti = async ({ query, type, year, genre, page = 1 }) => {
-  const params = {
-    language: 'en-US',
-    query,
-    include_adult: false,
-    page
-  };
-  if (type) params.type = type;
-  if (year) params.year = year;
-  if (genre) params.with_genres = genre;
-  return makeRequest('/search/multi', params);
+  const url = `${BASE_URL}/search/multi?api_key=${process.env.REACT_APP_TMDB_KEY}&language=en-US&query=${query}&page=${page}`;
+  const params = new URLSearchParams();
+  if (type) params.append('type', type);
+  if (year) params.append('year', year);
+  if (genre) params.append('with_genres', genre);
+  
+  try {
+    const response = await fetch(`${url}&${params.toString()}`);
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return await response.json();
+  } catch (error) {
+    throw error;
+  }
 };
 
 export const getTVSeriesDetails = async (id) => {
-  return makeRequest(`/tv/${id}`, { language: 'en-US' });
+  const url = `${BASE_URL}/tv/${id}?api_key=${process.env.REACT_APP_TMDB_KEY}&language=en-US&append_to_response=credits,similar`;
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return await response.json();
+  } catch (error) {
+    throw error;
+  }
 };
 
 export const getMovieCredits = async (id) => {
-  return makeRequest(`/movie/${id}/credits`, { language: 'en-US' });
+  const url = `${BASE_URL}/movie/${id}/credits?api_key=${process.env.REACT_APP_TMDB_KEY}&language=en-US`;
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return await response.json();
+  } catch (error) {
+    throw error;
+  }
 };
 
 export const getTVSeriesCredits = async (id) => {
-  return makeRequest(`/tv/${id}/credits`, { language: 'en-US' });
+  const url = `${BASE_URL}/tv/${id}/credits?api_key=${process.env.REACT_APP_TMDB_KEY}&language=en-US`;
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return await response.json();
+  } catch (error) {
+    throw error;
+  }
 };
 
 export const getSimilarMovies = async (id, page = 1) => {
-  return makeRequest(`/movie/${id}/similar`, { language: 'en-US', page });
+  const url = `${BASE_URL}/movie/${id}/similar?api_key=${process.env.REACT_APP_TMDB_KEY}&language=en-US&page=${page}`;
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return await response.json();
+  } catch (error) {
+    throw error;
+  }
 };
 
 export const getSimilarTVSeries = async (id, page = 1) => {
-  return makeRequest(`/tv/${id}/similar`, { language: 'en-US', page });
+  const url = `${BASE_URL}/tv/${id}/similar?api_key=${process.env.REACT_APP_TMDB_KEY}&language=en-US&page=${page}`;
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return await response.json();
+  } catch (error) {
+    throw error;
+  }
 };
 
 export const getActorMovieCredits = async (id) => {
-  return makeRequest(`/person/${id}/movie_credits`, { language: 'en-US' });
+  const url = `${BASE_URL}/person/${id}/movie_credits?api_key=${process.env.REACT_APP_TMDB_KEY}&language=en-US`;
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return await response.json();
+  } catch (error) {
+    throw error;
+  }
 };
 
 export const getActorTVCredits = async (id) => {
-  return makeRequest(`/person/${id}/tv_credits`, { language: 'en-US' });
+  const url = `${BASE_URL}/person/${id}/tv_credits?api_key=${process.env.REACT_APP_TMDB_KEY}&language=en-US`;
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return await response.json();
+  } catch (error) {
+    throw error;
+  }
 };

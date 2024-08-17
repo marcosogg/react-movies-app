@@ -254,6 +254,8 @@ test('renders learn react link', () => {
 ```js
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from 'react-query';
+import { AuthProvider } from './context/AuthContext';
 import Home from './components/Home';
 import PopularMovies from './components/PopularMovies';
 import Actors from './components/Actors';
@@ -262,24 +264,44 @@ import MovieDetails from './components/MovieDetails';
 import ActorDetails from './components/ActorDetails';
 import CollectionDetails from './components/CollectionDetails';
 import FantasyMovie from './components/FantasyMovie';
+import Login from './components/Login';
+import PrivateRoute from './components/PrivateRoute';
+import { FavoritesProvider } from './context/FavoritesContext';
+import Favorites from './components/Favorites';
+
+const queryClient = new QueryClient();
 
 function App() {
   return (
-    <Router>
-      <div className="App">
-        <h1>React Movies App</h1>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/popular" element={<PopularMovies />} />
-          <Route path="/actors" element={<Actors />} />
-          <Route path="/tv-series" element={<TVSeries />} />
-          <Route path="/movie/:id" element={<MovieDetails />} />
-          <Route path="/actor/:id" element={<ActorDetails />} />
-          <Route path="/collection/:id" element={<CollectionDetails />} />
-          <Route path="/fantasy-movie" element={<FantasyMovie />} />
-        </Routes>
-      </div>
-    </Router>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <FavoritesProvider>
+          <Router>
+            <div className="App">
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/popular-movies" element={<PopularMovies />} />
+                <Route path="/actors" element={<Actors />} />
+                <Route path="/tv-series" element={<TVSeries />} />
+                <Route path="/movie/:id" element={<MovieDetails />} />
+                <Route path="/actor/:id" element={<ActorDetails />} />
+                <Route path="/collection/:id" element={<CollectionDetails />} />
+                <Route path="/favorites" element={<PrivateRoute><Favorites /></PrivateRoute>} />
+                <Route 
+                  path="/fantasy-movie" 
+                  element={
+                    <PrivateRoute>
+                      <FantasyMovie />
+                    </PrivateRoute>
+                  } 
+                />
+                <Route path="/login" element={<Login />} />
+              </Routes>
+            </div>
+          </Router>
+        </FavoritesProvider>
+      </AuthProvider>
+    </QueryClientProvider>
   );
 }
 
@@ -431,21 +453,149 @@ This is a binary file of the type: Image
 
 This is a binary file of the type: Binary
 
+# src\context\FavoritesContext.js
+
+```js
+import React, { createContext, useState, useContext, useEffect } from 'react';
+
+   const FavoritesContext = createContext();
+
+   export const useFavorites = () => useContext(FavoritesContext);
+
+   export const FavoritesProvider = ({ children }) => {
+     const [favorites, setFavorites] = useState({
+       actors: [],
+       tvSeries: []
+     });
+
+     useEffect(() => {
+       const storedFavorites = localStorage.getItem('favorites');
+       if (storedFavorites) {
+         setFavorites(JSON.parse(storedFavorites));
+       }
+     }, []);
+
+     const addFavorite = (type, item) => {
+       setFavorites(prev => {
+         const newFavorites = {
+           ...prev,
+           [type]: [...prev[type], item]
+         };
+         localStorage.setItem('favorites', JSON.stringify(newFavorites));
+         return newFavorites;
+       });
+     };
+
+     const removeFavorite = (type, itemId) => {
+       setFavorites(prev => {
+         const newFavorites = {
+           ...prev,
+           [type]: prev[type].filter(item => item.id !== itemId)
+         };
+         localStorage.setItem('favorites', JSON.stringify(newFavorites));
+         return newFavorites;
+       });
+     };
+
+     return (
+       <FavoritesContext.Provider value={{ favorites, addFavorite, removeFavorite }}>
+         {children}
+       </FavoritesContext.Provider>
+     );
+   };
+```
+
+# src\context\AuthContext.js
+
+```js
+import React, { createContext, useState, useContext } from 'react';
+
+const AuthContext = createContext();
+
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+
+  const login = (username, password) => {
+    // For this basic implementation, we'll just check if both fields are non-empty
+    if (username && password) {
+      setUser({ username });
+      return true;
+    }
+    return false;
+  };
+
+  const logout = () => {
+    setUser(null);
+  };
+
+  return (
+    <AuthContext.Provider value={{ user, login, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+export const useAuth = () => useContext(AuthContext);
+```
+
 # src\components\TVSeries.js
 
 ```js
 import React from 'react';
+import { useQuery } from 'react-query';
+import { getPopularTVSeries } from '../api/tmdb-api';
+import { Link } from 'react-router-dom';
+import { useFavorites } from '../context/FavoritesContext';
 
-function TVSeries() {
+const TVSeries = () => {
+  const { data, error, isLoading } = useQuery(['popularTVSeries', 1], () => getPopularTVSeries(1));
+  const { addFavorite } = useFavorites();
+
+  if (isLoading) return <div>Loading TV series...</div>;
+  if (error) return <div>Error loading TV series: {error.message}</div>;
+
   return (
     <div>
-      <h2>TV Series</h2>
-      <p>This page will display a list of TV series.</p>
+      <h2>Popular TV Series</h2>
+      {data && data.results ? (
+        <ul>
+          {data.results.map(series => (
+            <li key={series.id}>
+              <Link to={`/tv/${series.id}`}>{series.name}</Link>
+              <button onClick={() => addFavorite('tvSeries', { id: series.id, name: series.name })}>
+                Add to Favorites
+              </button>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <div>No TV series found</div>
+      )}
     </div>
   );
-}
+};
 
 export default TVSeries;
+```
+
+# src\components\PrivateRoute.js
+
+```js
+import React from 'react';
+import { Navigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+
+const PrivateRoute = ({ children }) => {
+  const { user } = useAuth();
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return children;
+};
+
+export default PrivateRoute;
 ```
 
 # src\components\PopularMovies.js
@@ -544,29 +694,129 @@ function MovieDetails() {
 export default MovieDetails;
 ```
 
+# src\components\Login.js
+
+```js
+import React, { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
+
+const Login = () => {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const { login } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (login(username, password)) {
+      navigate('/');
+    } else {
+      alert('Invalid credentials');
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <h2>Login</h2>
+      <div>
+        <label>Username:
+          <input 
+            type="text" 
+            value={username} 
+            onChange={(e) => setUsername(e.target.value)} 
+          />
+        </label>
+      </div>
+      <div>
+        <label>Password:
+          <input 
+            type="password" 
+            value={password} 
+            onChange={(e) => setPassword(e.target.value)} 
+          />
+        </label>
+      </div>
+      <button type="submit">Login</button>
+    </form>
+  );
+};
+
+export default Login;
+```
+
 # src\components\Home.js
 
 ```js
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
-function Home() {
+const Home = () => {
+  const { user, logout } = useAuth();
+
   return (
     <div>
-      <h2>Welcome to the Movies App</h2>
+      <h1>Welcome to the Movies App</h1>
       <nav>
         <ul>
-          <li><Link to="/popular">Popular Movies</Link></li>
+          <li><Link to="/popular-movies">Popular Movies</Link></li>
           <li><Link to="/actors">Actors</Link></li>
           <li><Link to="/tv-series">TV Series</Link></li>
           <li><Link to="/fantasy-movie">Create Fantasy Movie</Link></li>
         </ul>
       </nav>
+      {user ? (
+        <div>
+          <p>Welcome, {user.username}!</p>
+          <button onClick={logout}>Logout</button>
+        </div>
+      ) : (
+        <Link to="/login">Login</Link>
+      )}
     </div>
   );
-}
+};
 
 export default Home;
+```
+
+# src\components\Favorites.js
+
+```js
+import React from 'react';
+   import { useFavorites } from '../context/FavoritesContext';
+   import { Link } from 'react-router-dom';
+
+   const Favorites = () => {
+     const { favorites, removeFavorite } = useFavorites();
+
+     return (
+       <div>
+         <h2>Favorite Actors</h2>
+         <ul>
+           {favorites.actors.map(actor => (
+             <li key={actor.id}>
+               <Link to={`/actor/${actor.id}`}>{actor.name}</Link>
+               <button onClick={() => removeFavorite('actors', actor.id)}>Remove</button>
+             </li>
+           ))}
+         </ul>
+
+         <h2>Favorite TV Series</h2>
+         <ul>
+           {favorites.tvSeries.map(series => (
+             <li key={series.id}>
+               <Link to={`/tv/${series.id}`}>{series.name}</Link>
+               <button onClick={() => removeFavorite('tvSeries', series.id)}>Remove</button>
+             </li>
+           ))}
+         </ul>
+       </div>
+     );
+   };
+
+   export default Favorites;
 ```
 
 # src\components\FantasyMovie.js
@@ -654,29 +904,38 @@ export default CollectionDetails;
 
 ```js
 import React from 'react';
-import { Link } from 'react-router-dom';
 import { useQuery } from 'react-query';
 import { getPopularActors } from '../api/tmdb-api';
+import { Link } from 'react-router-dom';
+import { useFavorites } from '../context/FavoritesContext';
 
-function Actors() {
-  const { data: actors, isLoading, isError } = useQuery('popularActors', getPopularActors);
+const Actors = () => {
+  const { data, error, isLoading } = useQuery(['popularActors', 1], () => getPopularActors(1));
+  const { addFavorite } = useFavorites();
 
-  if (isLoading) return <div>Loading...</div>;
-  if (isError) return <div>Error fetching actors</div>;
+  if (isLoading) return <div>Loading actors...</div>;
+  if (error) return <div>Error loading actors: {error.message}</div>;
 
   return (
     <div>
       <h2>Popular Actors</h2>
-      <ul>
-        {actors.map(actor => (
-          <li key={actor.id}>
-            <Link to={`/actor/${actor.id}`}>{actor.name}</Link>
-          </li>
-        ))}
-      </ul>
+      {data && data.results ? (
+        <ul>
+          {data.results.map(actor => (
+            <li key={actor.id}>
+              <Link to={`/actor/${actor.id}`}>{actor.name}</Link>
+              <button onClick={() => addFavorite('actors', { id: actor.id, name: actor.name })}>
+                Add to Favorites
+              </button>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <div>No actors found</div>
+      )}
     </div>
   );
-}
+};
 
 export default Actors;
 ```
@@ -716,40 +975,95 @@ export default ActorDetails;
 # src\api\tmdb-api.js
 
 ```js
-import axios from 'axios';
+const apiKey = process.env.REACT_APP_TMDB_KEY;
 
-const API_KEY = '901dd8a13aec35b683be8bf5e6260d7b';
-const BASE_URL = 'https://api.themoviedb.org/3';
-
-export const getPopularMovies = async (page = 1) => {
-  const response = await fetch(
-    `https://api.themoviedb.org/3/movie/popular?api_key=${API_KEY}&language=en-US&page=${page}`
-  );
+const handleResponse = async (response) => {
   if (!response.ok) {
-    throw new Error('Network response was not ok');
+    const error = await response.json();
+    throw new Error(error.status_message || 'Network response was not ok');
   }
   return response.json();
 };
 
+const makeRequest = async (endpoint, params = {}) => {
+  if (!apiKey) {
+    console.error('TMDB API key is not set');
+    throw new Error('TMDB API key is not set');
+  }
+  const url = new URL(`https://api.themoviedb.org/3${endpoint}`);
+  url.searchParams.append('api_key', apiKey);
+  Object.entries(params).forEach(([key, value]) => {
+    url.searchParams.append(key, value.toString());
+  });
+  console.log('Making request to:', url.toString());
+  const response = await fetch(url.toString());
+  console.log('Response status:', response.status);
+  return handleResponse(response);
+};
+
+export const getPopularMovies = async (page = 1) => {
+  return makeRequest('/movie/popular', { language: 'en-US', page });
+};
+
 export const getMovieDetails = async (id) => {
-  const response = await axios.get(`${BASE_URL}/movie/${id}?api_key=${API_KEY}&append_to_response=credits,similar`);
-  return response.data;
+  return makeRequest(`/movie/${id}`, { language: 'en-US' });
 };
 
 export const getActorDetails = async (id) => {
-  const response = await axios.get(`${BASE_URL}/person/${id}?api_key=${API_KEY}&append_to_response=movie_credits`);
-  return response.data;
+  return makeRequest(`/person/${id}`, { language: 'en-US' });
 };
 
 export const getCollectionDetails = async (id) => {
-  const response = await axios.get(`${BASE_URL}/collection/${id}?api_key=${API_KEY}`);
-  return response.data;
+  return makeRequest(`/collection/${id}`, { language: 'en-US' });
 };
 
-export const getPopularActors = async () => {
-  const response = await axios.get(`${BASE_URL}/person/popular?api_key=${API_KEY}`);
-  return response.data.results;
+export const getPopularActors = async (page = 1) => {
+  return makeRequest('/person/popular', { language: 'en-US', page });
 };
 
+export const getPopularTVSeries = async (page = 1) => {
+  return makeRequest('/tv/popular', { language: 'en-US', page });
+};
+
+export const searchMulti = async ({ query, type, year, genre, page = 1 }) => {
+  const params = {
+    language: 'en-US',
+    query,
+    include_adult: false,
+    page
+  };
+  if (type) params.type = type;
+  if (year) params.year = year;
+  if (genre) params.with_genres = genre;
+  return makeRequest('/search/multi', params);
+};
+
+export const getTVSeriesDetails = async (id) => {
+  return makeRequest(`/tv/${id}`, { language: 'en-US' });
+};
+
+export const getMovieCredits = async (id) => {
+  return makeRequest(`/movie/${id}/credits`, { language: 'en-US' });
+};
+
+export const getTVSeriesCredits = async (id) => {
+  return makeRequest(`/tv/${id}/credits`, { language: 'en-US' });
+};
+
+export const getSimilarMovies = async (id, page = 1) => {
+  return makeRequest(`/movie/${id}/similar`, { language: 'en-US', page });
+};
+
+export const getSimilarTVSeries = async (id, page = 1) => {
+  return makeRequest(`/tv/${id}/similar`, { language: 'en-US', page });
+};
+
+export const getActorMovieCredits = async (id) => {
+  return makeRequest(`/person/${id}/movie_credits`, { language: 'en-US' });
+};
+
+export const getActorTVCredits = async (id) => {
+  return makeRequest(`/person/${id}/tv_credits`, { language: 'en-US' });
+};
 ```
 

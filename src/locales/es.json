@@ -1,0 +1,24 @@
+{
+    "nav": {
+      "home": "Inicio",
+      "movies": "Películas Populares",
+      "actors": "Actores",
+      "tvSeries": "Series de TV",
+      "fantasyMovie": "Crear Película de Fantasía",
+      "search": "Buscar"
+    },
+    "search": {
+      "title": "Búsqueda Multi-Criterio",
+      "placeholder": "Buscar...",
+      "type": {
+        "all": "Todos",
+        "movies": "Películas",
+        "tvShows": "Series de TV",
+        "people": "Personas"
+      },
+      "year": "Año",
+      "genre": "ID de Género",
+      "submit": "Buscar",
+      "results": "Resultados de la Búsqueda"
+    }
+  }

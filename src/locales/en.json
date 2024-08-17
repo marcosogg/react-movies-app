@@ -1,0 +1,24 @@
+{
+    "nav": {
+      "home": "Home",
+      "movies": "Popular Movies",
+      "actors": "Actors",
+      "tvSeries": "TV Series",
+      "fantasyMovie": "Create Fantasy Movie",
+      "search": "Search"
+    },
+    "search": {
+      "title": "Multi-Criteria Search",
+      "placeholder": "Search...",
+      "type": {
+        "all": "All",
+        "movies": "Movies",
+        "tvShows": "TV Shows",
+        "people": "People"
+      },
+      "year": "Year",
+      "genre": "Genre ID",
+      "submit": "Search",
+      "results": "Search Results"
+    }
+  }
