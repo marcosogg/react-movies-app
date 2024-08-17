@@ -1,24 +1,67 @@
 {
-    "nav": {
-      "home": "Home",
-      "movies": "Popular Movies",
-      "actors": "Actors",
-      "tvSeries": "TV Series",
-      "fantasyMovie": "Create Fantasy Movie",
-      "search": "Search"
+  "nav": {
+    "home": "Home",
+    "movies": "Popular Movies",
+    "actors": "Actors",
+    "tvSeries": "TV Series",
+    "fantasyMovie": "Create Fantasy Movie",
+    "search": "Search"
+  },
+  "search": {
+    "title": "Multi-Criteria Search",
+    "placeholder": "Search...",
+    "type": {
+      "all": "All",
+      "movies": "Movies",
+      "tvShows": "TV Shows",
+      "people": "People"
     },
-    "search": {
-      "title": "Multi-Criteria Search",
-      "placeholder": "Search...",
-      "type": {
-        "all": "All",
-        "movies": "Movies",
-        "tvShows": "TV Shows",
-        "people": "People"
-      },
-      "year": "Year",
-      "genre": "Genre ID",
-      "submit": "Search",
-      "results": "Search Results"
-    }
-  }
+    "year": "Year",
+    "genre": "Genre ID",
+    "submit": "Search",
+    "results": "Search Results"
+  },
+  "welcome": "Welcome to the Movies App",
+  "popularMovies": "Popular Movies",
+  "actors": "Actors",
+  "tvSeries": "TV Series",
+  "createFantasyMovie": "Create Fantasy Movie",
+  "login": "Login",
+  "logout": "Logout",
+  "email": "Email",
+  "password": "Password",
+  "welcomeUser": "Welcome, {{name}}!",
+  "loading": "Loading...",
+  "error": "Error",
+  "errorFetchingMovieDetails": "Error fetching movie details",
+  "errorFetchingRecommendations": "Error fetching recommendations",
+  "genres": "Genres",
+  "cast": "Cast",
+  "crew": "Crew",
+  "similarMovies": "Similar Movies",
+  "partOfCollection": "Part of Collection",
+  "productionCompanies": "Production Companies",
+  "previousPage": "Previous Page",
+  "nextPage": "Next Page",
+  "page": "Page",
+  "advancedRecommendations": "Advanced Recommendations",
+  "advancedRecommendationsDescription": "Based on your viewing history and preferences",
+  "recommendationReason": "Recommended because: {{reason}}",
+  "title": "Title",
+  "overview": "Overview",
+  "genresPlaceholder": "Enter genres (comma-separated)",
+  "releaseDate": "Release Date",
+  "runtime": "Runtime",
+  "runtimePlaceholder": "Enter runtime in minutes",
+  "productionCompaniesPlaceholder": "Enter production companies (comma-separated)",
+  "createMovie": "Create Movie",
+  "fantasyMovieCreated": "Fantasy movie created successfully!",
+  "firstAirDate": "First Air Date",
+  "voteAverage": "Vote Average",
+  "addToFavorites": "Add to Favorites",
+  "removeFromFavorites": "Remove from Favorites",
+  "favorites": "Favorites",
+  "favoriteActors": "Favorite Actors",
+  "favoriteTVSeries": "Favorite TV Series",
+  "knownFor": "Known For"
+}

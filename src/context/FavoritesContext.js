@@ -7,7 +7,7 @@ const FavoritesContext = createContext();
 export const useFavorites = () => useContext(FavoritesContext);
 
 export const FavoritesProvider = ({ children }) => {
-  const [favorites, setFavorites] = useState([]);
+  const [favorites, setFavorites] = useState({ actors: [], tvSeries: [] });
   const { user } = useAuth();
 
   const fetchFavorites = useCallback(async () => {
@@ -20,7 +20,9 @@ export const FavoritesProvider = ({ children }) => {
       if (error) {
         console.error('Error fetching favorites:', error);
       } else {
-        setFavorites(data);
+        const actors = data.filter(item => item.type === 'actor');
+        const tvSeries = data.filter(item => item.type === 'tvSeries');
+        setFavorites({ actors, tvSeries });
       }
     }
   }, [user]);
@@ -29,45 +31,41 @@ export const FavoritesProvider = ({ children }) => {
     fetchFavorites();
   }, [fetchFavorites]);
 
-  const addFavorite = async (item) => {
-    if (user) {
-      const { data, error } = await supabase
-        .from('favorites')
-        .insert({ user_id: user.id, item_id: item.id, item_type: item.media_type });
+  const addFavorite = async (type, item) => {
+    const { data, error } = await supabase
+      .from('favorites')
+      .insert({ user_id: user.id, type, item_id: item.id, item_data: item })
+      .select();
 
-      if (error) {
-        console.error('Error adding favorite:', error);
-      } else {
-        setFavorites([...favorites, data[0]]);
-      }
+    if (error) {
+      console.error('Error adding favorite:', error);
     } else {
-      console.error('User not authenticated');
+      setFavorites(prev => ({
+        ...prev,
+        [type]: [...prev[type], data[0]]
+      }));
     }
   };
 
-  const removeFavorite = async (itemId) => {
-    if (user) {
-      const { error } = await supabase
-        .from('favorites')
-        .delete()
-        .match({ user_id: user.id, item_id: itemId });
+  const removeFavorite = async (type, itemId) => {
+    const { error } = await supabase
+      .from('favorites')
+      .delete()
+      .match({ user_id: user.id, type, item_id: itemId });
 
-      if (error) {
-        console.error('Error removing favorite:', error);
-      } else {
-        setFavorites(favorites.filter(fav => fav.item_id !== itemId));
-      }
+    if (error) {
+      console.error('Error removing favorite:', error);
     } else {
-      console.error('User not authenticated');
+      setFavorites(prev => ({
+        ...prev,
+        [type]: prev[type].filter(item => item.item_id !== itemId)
+      }));
     }
   };
 
-  const value = {
-    favorites,
-    setFavorites,
-    addFavorite,
-    removeFavorite,
-  };
-
-  return <FavoritesContext.Provider value={value}>{children}</FavoritesContext.Provider>;
+  return (
+    <FavoritesContext.Provider value={{ favorites, addFavorite, removeFavorite }}>
+      {children}
+    </FavoritesContext.Provider>
+  );
 };

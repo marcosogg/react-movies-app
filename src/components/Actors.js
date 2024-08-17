@@ -15,16 +15,11 @@ const Actors = () => {
     { keepPreviousData: true }
   );
 
-  if (isLoading) {
-    return <div>{t('loading')}</div>;
-  }
-
-  if (isError) {
-    return <div>{t('error')}: {error.message}</div>;
-  }
+  if (isLoading) return <div>{t('loading')}</div>;
+  if (isError) return <div>{t('error')}: {error.message}</div>;
 
   const toggleFavorite = (actor) => {
-    const isFavorite = favorites?.actors?.some(fav => fav.id === actor.id) || false;
+    const isFavorite = favorites.actors.some(fav => fav.item_id === actor.id);
     if (isFavorite) {
       removeFavorite('actors', actor.id);
     } else {
@@ -46,7 +41,7 @@ const Actors = () => {
               <h3>{actor.name}</h3>
             </Link>
             <button onClick={() => toggleFavorite(actor)}>
-              {favorites?.actors?.some(fav => fav.id === actor.id)
+              {favorites.actors.some(fav => fav.item_id === actor.id)
                 ? t('removeFromFavorites')
                 : t('addToFavorites')}
             </button>

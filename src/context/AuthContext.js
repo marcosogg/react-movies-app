@@ -10,38 +10,40 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      setUser(user);
-      setLoading(false);
-    };
+    const session = supabase.auth.getSession();
+    setUser(session?.user ?? null);
+    setLoading(false);
 
-    fetchUser();
-
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        setUser(session?.user ?? null);
+        setLoading(false);
+      }
+    );
 
     return () => {
       authListener.subscription.unsubscribe();
     };
   }, []);
 
-  const signIn = (email, password) => supabase.auth.signInWithPassword({ email, password });
+  const signUp = (email, password) =>
+    supabase.auth.signUp({ email, password });
+
+  const signIn = (email, password) =>
+    supabase.auth.signInWithPassword({ email, password });
 
   const signOut = () => supabase.auth.signOut();
 
   const value = {
+    signUp,
     signIn,
     signOut,
     user,
-    loading,
   };
 
-  if (loading) {
-    return <div>Loading...</div>; // Or any loading indicator you prefer
-  }
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={value}>
+      {!loading && children}
+    </AuthContext.Provider>
+  );
 };

@@ -1,22 +1,27 @@
 import React, { useState } from 'react';
 import { useQuery } from 'react-query';
-import { getPopularMovies } from '../api/tmdb-api';
 import { Link } from 'react-router-dom';
+import { getPopularMovies } from '../api/tmdb-api';
+import { useTranslation } from 'react-i18next';
 
 const PopularMovies = () => {
+  const { t } = useTranslation();
   const [page, setPage] = useState(1);
-  const { data, isLoading, isError, error } = useQuery(
+  const { data, isLoading, isError, error, isPreviousData } = useQuery(
     ['popularMovies', page],
     () => getPopularMovies(page),
-    { keepPreviousData: true }
+    {
+      keepPreviousData: true,
+      staleTime: 5 * 60 * 1000, // 5 minutes
+    }
   );
 
-  if (isLoading) return <div>Loading...</div>;
-  if (isError) return <div>Error: {error.message}</div>;
+  if (isLoading) return <div>{t('loading')}</div>;
+  if (isError) return <div>{t('error')}: {error.message}</div>;
 
   return (
     <div>
-      <h1>Popular Movies</h1>
+      <h1>{t('popularMovies')}</h1>
       <ul>
         {data.results.map((movie) => (
           <li key={movie.id}>
@@ -29,14 +34,18 @@ const PopularMovies = () => {
           onClick={() => setPage((old) => Math.max(old - 1, 1))} 
           disabled={page === 1}
         >
-          Previous Page
+          {t('previousPage')}
         </button>
-        <span>Page {page}</span>
+        <span>{t('page')} {page}</span>
         <button 
-          onClick={() => setPage((old) => old + 1)} 
-          disabled={!data.hasMore}
+          onClick={() => {
+            if (!isPreviousData && data.page < data.total_pages) {
+              setPage((old) => old + 1);
+            }
+          }} 
+          disabled={isPreviousData || data.page >= data.total_pages}
         >
-          Next Page
+          {t('nextPage')}
         </button>
       </div>
     </div>

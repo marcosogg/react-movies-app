@@ -63,8 +63,8 @@ const Search = () => {
         <button type="submit">{t('search.submit')}</button>
       </form>
 
-      {isLoading && <div>Loading...</div>}
-      {isError && <div>Error occurred while searching</div>}
+      {isLoading && <div>{t('loading')}</div>}
+      {isError && <div>{t('error')}</div>}
       {data && (
         <div>
           <h2>{t('search.results')}</h2>

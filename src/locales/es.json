@@ -1,24 +1,67 @@
 {
-    "nav": {
-      "home": "Inicio",
-      "movies": "Películas Populares",
-      "actors": "Actores",
-      "tvSeries": "Series de TV",
-      "fantasyMovie": "Crear Película de Fantasía",
-      "search": "Buscar"
+  "nav": {
+    "home": "Inicio",
+    "movies": "Películas Populares",
+    "actors": "Actores",
+    "tvSeries": "Series de TV",
+    "fantasyMovie": "Crear Película de Fantasía",
+    "search": "Buscar"
+  },
+  "search": {
+    "title": "Búsqueda Multi-Criterio",
+    "placeholder": "Buscar...",
+    "type": {
+      "all": "Todos",
+      "movies": "Películas",
+      "tvShows": "Series de TV",
+      "people": "Personas"
     },
-    "search": {
-      "title": "Búsqueda Multi-Criterio",
-      "placeholder": "Buscar...",
-      "type": {
-        "all": "Todos",
-        "movies": "Películas",
-        "tvShows": "Series de TV",
-        "people": "Personas"
-      },
-      "year": "Año",
-      "genre": "ID de Género",
-      "submit": "Buscar",
-      "results": "Resultados de la Búsqueda"
-    }
-  }
+    "year": "Año",
+    "genre": "ID de Género",
+    "submit": "Buscar",
+    "results": "Resultados de la Búsqueda"
+  },
+  "welcome": "Bienvenido a la Aplicación de Películas",
+  "popularMovies": "Películas Populares",
+  "actors": "Actores",
+  "tvSeries": "Series de TV",
+  "createFantasyMovie": "Crear Película de Fantasía",
+  "login": "Iniciar Sesión",
+  "logout": "Cerrar Sesión",
+  "email": "Correo Electrónico",
+  "password": "Contraseña",
+  "welcomeUser": "¡Bienvenido, {{name}}!",
+  "loading": "Cargando...",
+  "error": "Error",
+  "errorFetchingMovieDetails": "Error al obtener detalles de la película",
+  "errorFetchingRecommendations": "Error al obtener recomendaciones",
+  "genres": "Géneros",
+  "cast": "Reparto",
+  "crew": "Equipo",
+  "similarMovies": "Películas Similares",
+  "partOfCollection": "Parte de la Colección",
+  "productionCompanies": "Compañías de Producción",
+  "previousPage": "Página Anterior",
+  "nextPage": "Página Siguiente",
+  "page": "Página",
+  "advancedRecommendations": "Recomendaciones Avanzadas",
+  "advancedRecommendationsDescription": "Basado en tu historial de visualización y preferencias",
+  "recommendationReason": "Recomendado porque: {{reason}}",
+  "title": "Título",
+  "overview": "Sinopsis",
+  "genresPlaceholder": "Ingresa géneros (separados por comas)",
+  "releaseDate": "Fecha de Estreno",
+  "runtime": "Duración",
+  "runtimePlaceholder": "Ingresa la duración en minutos",
+  "productionCompaniesPlaceholder": "Ingresa compañías de producción (separadas por comas)",
+  "createMovie": "Crear Película",
+  "fantasyMovieCreated": "¡Película de fantasía creada exitosamente!",
+  "firstAirDate": "Fecha de Primer Episodio",
+  "voteAverage": "Puntuación Promedio",
+  "addToFavorites": "Agregar a Favoritos",
+  "removeFromFavorites": "Quitar de Favoritos",
+  "favorites": "Favoritos",
+  "favoriteActors": "Actores Favoritos",
+  "favoriteTVSeries": "Series de TV Favoritas",
+  "knownFor": "Conocido Por"
+}
