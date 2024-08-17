@@ -1,77 +1,73 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
+import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
+import { supabase } from '../supabase';
+import { useAuth } from './AuthContext';
 
-export const FavoritesContext = createContext();
+const FavoritesContext = createContext();
+
+export const useFavorites = () => useContext(FavoritesContext);
 
 export const FavoritesProvider = ({ children }) => {
-  const [favorites, setFavorites] = useState({
-    actors: [],
-    tvSeries: []
-  });
-  const [favoritesOrder, setFavoritesOrder] = useState({
-    actors: [],
-    tvSeries: []
-  });
+  const [favorites, setFavorites] = useState([]);
+  const { user } = useAuth();
+
+  const fetchFavorites = useCallback(async () => {
+    if (user) {
+      const { data, error } = await supabase
+        .from('favorites')
+        .select('*')
+        .eq('user_id', user.id);
+
+      if (error) {
+        console.error('Error fetching favorites:', error);
+      } else {
+        setFavorites(data);
+      }
+    }
+  }, [user]);
 
   useEffect(() => {
-    const storedFavorites = localStorage.getItem('favorites');
-    const storedOrder = localStorage.getItem('favoritesOrder');
-    if (storedFavorites) setFavorites(JSON.parse(storedFavorites));
-    if (storedOrder) setFavoritesOrder(JSON.parse(storedOrder));
-  }, []);
+    fetchFavorites();
+  }, [fetchFavorites]);
 
-  useEffect(() => {
-    localStorage.setItem('favorites', JSON.stringify(favorites));
-    localStorage.setItem('favoritesOrder', JSON.stringify(favoritesOrder));
-  }, [favorites, favoritesOrder]);
+  const addFavorite = async (item) => {
+    if (user) {
+      const { data, error } = await supabase
+        .from('favorites')
+        .insert({ user_id: user.id, item_id: item.id, item_type: item.media_type });
 
-  const addFavorite = (type, item) => {
-    setFavorites(prev => ({
-      ...prev,
-      [type]: [...prev[type], item]
-    }));
-    setFavoritesOrder(prev => ({
-      ...prev,
-      [type]: [...prev[type], item.id]
-    }));
+      if (error) {
+        console.error('Error adding favorite:', error);
+      } else {
+        setFavorites([...favorites, data[0]]);
+      }
+    } else {
+      console.error('User not authenticated');
+    }
   };
 
-  const removeFavorite = (type, id) => {
-    setFavorites(prev => ({
-      ...prev,
-      [type]: prev[type].filter(item => item.id !== id)
-    }));
-    setFavoritesOrder(prev => ({
-      ...prev,
-      [type]: prev[type].filter(itemId => itemId !== id)
-    }));
+  const removeFavorite = async (itemId) => {
+    if (user) {
+      const { error } = await supabase
+        .from('favorites')
+        .delete()
+        .match({ user_id: user.id, item_id: itemId });
+
+      if (error) {
+        console.error('Error removing favorite:', error);
+      } else {
+        setFavorites(favorites.filter(fav => fav.item_id !== itemId));
+      }
+    } else {
+      console.error('User not authenticated');
+    }
   };
 
-  const reorderFavorites = (type, newOrder) => {
-    setFavoritesOrder(prev => ({
-      ...prev,
-      [type]: newOrder
-    }));
+  const value = {
+    favorites,
+    setFavorites,
+    addFavorite,
+    removeFavorite,
   };
 
-  return (
-    <FavoritesContext.Provider
-      value={{
-        favorites,
-        favoritesOrder,
-        addFavorite,
-        removeFavorite,
-        reorderFavorites
-      }}
-    >
-      {children}
-    </FavoritesContext.Provider>
-  );
-};
-
-export const useFavorites = () => {
-  const context = useContext(FavoritesContext);
-  if (context === undefined) {
-    throw new Error('useFavorites must be used within a FavoritesProvider');
-  }
-  return context;
+  return <FavoritesContext.Provider value={value}>{children}</FavoritesContext.Provider>;
 };

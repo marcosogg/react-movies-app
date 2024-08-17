@@ -1,19 +1,20 @@
-import React, { useContext } from 'react';
-import { FavoritesContext } from '../context/FavoritesContext';
+import React from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import { Link } from 'react-router-dom';
+import { useFavorites } from '../context/FavoritesContext';
 
-const OrderedFavorites = ({ type }) => {
-  const { favorites, favoritesOrder, reorderFavorites } = useContext(FavoritesContext);
+const OrderedFavorites = () => {
+  const { favorites, setFavorites } = useFavorites();
 
   const onDragEnd = (result) => {
-    if (!result.destination) return;
+    if (!result.destination) {
+      return;
+    }
 
-    const items = Array.from(favoritesOrder[type]);
+    const items = Array.from(favorites);
     const [reorderedItem] = items.splice(result.source.index, 1);
     items.splice(result.destination.index, 0, reorderedItem);
 
-    reorderFavorites(type, items);
+    setFavorites(items);
   };
 
   return (
@@ -21,24 +22,19 @@ const OrderedFavorites = ({ type }) => {
       <Droppable droppableId="favorites">
         {(provided) => (
           <ul {...provided.droppableProps} ref={provided.innerRef}>
-            {favoritesOrder[type].map((id, index) => {
-              const item = favorites[type].find(fav => fav.id === id);
-              return (
-                <Draggable key={id} draggableId={id.toString()} index={index}>
-                  {(provided) => (
-                    <li
-                      ref={provided.innerRef}
-                      {...provided.draggableProps}
-                      {...provided.dragHandleProps}
-                    >
-                      <Link to={`/${type === 'actors' ? 'actor' : 'tv'}/${id}`}>
-                        {item.name}
-                      </Link>
-                    </li>
-                  )}
-                </Draggable>
-              );
-            })}
+            {favorites.map((item, index) => (
+              <Draggable key={item.id} draggableId={item.id.toString()} index={index}>
+                {(provided) => (
+                  <li
+                    ref={provided.innerRef}
+                    {...provided.draggableProps}
+                    {...provided.dragHandleProps}
+                  >
+                    {item.title || item.name}
+                  </li>
+                )}
+              </Draggable>
+            ))}
             {provided.placeholder}
           </ul>
         )}

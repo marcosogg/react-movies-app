@@ -24,7 +24,7 @@ const TVSeries = () => {
   }
 
   const toggleFavorite = (series) => {
-    const isFavorite = favorites.tvSeries.some(fav => fav.id === series.id);
+    const isFavorite = favorites?.tvSeries?.some(fav => fav.id === series.id) || false;
     if (isFavorite) {
       removeFavorite('tvSeries', series.id);
     } else {
@@ -46,7 +46,7 @@ const TVSeries = () => {
               <h3>{series.name}</h3>
             </Link>
             <button onClick={() => toggleFavorite(series)}>
-              {favorites.tvSeries.some(fav => fav.id === series.id)
+              {favorites?.tvSeries?.some(fav => fav.id === series.id)
                 ? t('removeFromFavorites')
                 : t('addToFavorites')}
             </button>
@@ -66,7 +66,7 @@ const TVSeries = () => {
         <span>{t('page')} {page}</span>
         <button 
           onClick={() => setPage((old) => old + 1)} 
-          disabled={!data.hasMore}
+          disabled={!data.results.length}
         >
           {t('nextPage')}
         </button>
