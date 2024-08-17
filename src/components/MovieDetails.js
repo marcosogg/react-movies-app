@@ -1,69 +1,45 @@
 import React from 'react';
 import { useQuery } from 'react-query';
-import { useParams, Link } from 'react-router-dom';
-import { getMovieDetails } from '../api/tmdb-api';
+import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { getMovieDetails } from '../api/tmdb-api';
 
 const MovieDetails = () => {
-  const { t } = useTranslation();
   const { id } = useParams();
-  const { data: movie, isLoading, isError } = useQuery(['movie', id], () => getMovieDetails(id));
+  const { t } = useTranslation();
 
-  if (isLoading) return <div>{t('loading')}</div>;
-  if (isError) return <div>{t('errorFetchingMovieDetails')}</div>;
+  const { data: movie, isLoading, isError, error } = useQuery(['movie', id], () => getMovieDetails(id));
+
+  if (isLoading) return <div className="text-center mt-8">{t('loading')}</div>;
+  if (isError) return (
+    <div className="max-w-md mx-auto mt-8 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+      <h2 className="font-bold">{t('error')}</h2>
+      <p>{error.message}</p>
+    </div>
+  );
+
+  const posterUrl = movie.poster_path
+    ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+    : '/placeholder-poster.jpg'; // You should add a placeholder image to your public folder
 
   return (
-    <div>
-      <h1>{movie.title}</h1>
-      <p>{movie.overview}</p>
-      <h2>{t('genres')}</h2>
-      <ul>
-        {movie.genres.map(genre => (
-          <li key={genre.id}>
-            <Link to={`/genre/${genre.id}`}>{genre.name}</Link>
-          </li>
-        ))}
-      </ul>
-      <h2>{t('cast')}</h2>
-      <ul>
-        {movie.credits.cast.slice(0, 10).map(actor => (
-          <li key={actor.id}>
-            <Link to={`/actor/${actor.id}`}>{actor.name}</Link> as {actor.character}
-          </li>
-        ))}
-      </ul>
-      <h2>{t('crew')}</h2>
-      <ul>
-        {movie.credits.crew.slice(0, 10).map(crewMember => (
-          <li key={`${crewMember.id}-${crewMember.job}`}>
-            <Link to={`/person/${crewMember.id}`}>{crewMember.name}</Link> - {crewMember.job}
-          </li>
-        ))}
-      </ul>
-      <h2>{t('similarMovies')}</h2>
-      <ul>
-        {movie.similar.results.slice(0, 5).map(similarMovie => (
-          <li key={similarMovie.id}>
-            <Link to={`/movie/${similarMovie.id}`}>{similarMovie.title}</Link>
-          </li>
-        ))}
-      </ul>
-      {movie.belongs_to_collection && (
-        <div>
-          <h2>{t('partOfCollection')}</h2>
-          <Link to={`/collection/${movie.belongs_to_collection.id}`}>
-            {movie.belongs_to_collection.name}
-          </Link>
+    <div className="max-w-4xl mx-auto mt-8 p-6 bg-white rounded-lg shadow-md">
+      <h1 className="text-3xl font-bold mb-4">{movie.title}</h1>
+      <div className="flex flex-col md:flex-row mb-6">
+        <img
+          src={posterUrl}
+          alt={`${movie.title} poster`}
+          className="w-full md:w-64 h-auto rounded-lg shadow-md mb-4 md:mb-0 md:mr-6"
+        />
+        <div className="flex-1">
+          <p className="text-lg mb-2"><strong>{t('overview')}:</strong> {movie.overview}</p>
+          <p className="mb-2"><strong>{t('releaseDate')}:</strong> {movie.release_date}</p>
+          <p className="mb-2"><strong>{t('runtime')}:</strong> {movie.runtime} {t('minutes')}</p>
+          <p className="mb-2"><strong>{t('genres')}:</strong> {movie.genres.map(g => g.name).join(', ')}</p>
+          <p className="mb-2"><strong>{t('productionCompanies')}:</strong> {movie.production_companies.map(c => c.name).join(', ')}</p>
         </div>
-      )}
-      <h2>{t('productionCompanies')}</h2>
-      <ul>
-        {movie.production_companies.map(company => (
-          <li key={company.id}>
-            <Link to={`/company/${company.id}`}>{company.name}</Link>
-          </li>
-        ))}
-      </ul>
+      </div>
+      {/* Add other movie details here */}
     </div>
   );
 };

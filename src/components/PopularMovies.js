@@ -1,49 +1,53 @@
 import React, { useState } from 'react';
 import { useQuery } from 'react-query';
 import { Link } from 'react-router-dom';
-import { getPopularMovies } from '../api/tmdb-api';
 import { useTranslation } from 'react-i18next';
+import { getPopularMovies } from '../api/tmdb-api';
 
 const PopularMovies = () => {
   const { t } = useTranslation();
   const [page, setPage] = useState(1);
-  const { data, isLoading, isError, error, isPreviousData } = useQuery(
-    ['popularMovies', page],
-    () => getPopularMovies(page),
-    {
-      keepPreviousData: true,
-      staleTime: 5 * 60 * 1000, // 5 minutes
-    }
+  const { data, isLoading, isError, error } = useQuery(['popularMovies', page], () => getPopularMovies(page));
+
+  if (isLoading) return <div className="text-center mt-8">{t('loading')}</div>;
+  if (isError) return (
+    <div className="max-w-md mx-auto mt-8 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+      <h2 className="font-bold">{t('error')}</h2>
+      <p>{error.message}</p>
+    </div>
   );
 
-  if (isLoading) return <div>{t('loading')}</div>;
-  if (isError) return <div>{t('error')}: {error.message}</div>;
-
   return (
-    <div>
-      <h1>{t('popularMovies')}</h1>
-      <ul>
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-6">{t('popularMovies')}</h1>
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
         {data.results.map((movie) => (
-          <li key={movie.id}>
-            <Link to={`/movie/${movie.id}`}>{movie.title}</Link>
-          </li>
+          <Link key={movie.id} to={`/movie/${movie.id}`} className="block">
+            <div className="bg-white rounded-lg shadow-md overflow-hidden transition-transform hover:scale-105">
+              <img
+                src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+                alt={`${movie.title} poster`}
+                className="w-full h-auto"
+              />
+              <div className="p-2">
+                <h2 className="text-sm font-semibold truncate">{movie.title}</h2>
+              </div>
+            </div>
+          </Link>
         ))}
-      </ul>
-      <div>
-        <button 
-          onClick={() => setPage((old) => Math.max(old - 1, 1))} 
+      </div>
+      <div className="mt-8 flex justify-center space-x-4">
+        <button
+          onClick={() => setPage((old) => Math.max(old - 1, 1))}
           disabled={page === 1}
+          className="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300"
         >
           {t('previousPage')}
         </button>
-        <span>{t('page')} {page}</span>
-        <button 
-          onClick={() => {
-            if (!isPreviousData && data.page < data.total_pages) {
-              setPage((old) => old + 1);
-            }
-          }} 
-          disabled={isPreviousData || data.page >= data.total_pages}
+        <button
+          onClick={() => setPage((old) => old + 1)}
+          disabled={!data.results.length}
+          className="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300"
         >
           {t('nextPage')}
         </button>
