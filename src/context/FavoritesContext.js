@@ -1,47 +1,77 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useEffect, useContext } from 'react';
 
-   const FavoritesContext = createContext();
+export const FavoritesContext = createContext();
 
-   export const useFavorites = () => useContext(FavoritesContext);
+export const FavoritesProvider = ({ children }) => {
+  const [favorites, setFavorites] = useState({
+    actors: [],
+    tvSeries: []
+  });
+  const [favoritesOrder, setFavoritesOrder] = useState({
+    actors: [],
+    tvSeries: []
+  });
 
-   export const FavoritesProvider = ({ children }) => {
-     const [favorites, setFavorites] = useState({
-       actors: [],
-       tvSeries: []
-     });
+  useEffect(() => {
+    const storedFavorites = localStorage.getItem('favorites');
+    const storedOrder = localStorage.getItem('favoritesOrder');
+    if (storedFavorites) setFavorites(JSON.parse(storedFavorites));
+    if (storedOrder) setFavoritesOrder(JSON.parse(storedOrder));
+  }, []);
 
-     useEffect(() => {
-       const storedFavorites = localStorage.getItem('favorites');
-       if (storedFavorites) {
-         setFavorites(JSON.parse(storedFavorites));
-       }
-     }, []);
+  useEffect(() => {
+    localStorage.setItem('favorites', JSON.stringify(favorites));
+    localStorage.setItem('favoritesOrder', JSON.stringify(favoritesOrder));
+  }, [favorites, favoritesOrder]);
 
-     const addFavorite = (type, item) => {
-       setFavorites(prev => {
-         const newFavorites = {
-           ...prev,
-           [type]: [...prev[type], item]
-         };
-         localStorage.setItem('favorites', JSON.stringify(newFavorites));
-         return newFavorites;
-       });
-     };
+  const addFavorite = (type, item) => {
+    setFavorites(prev => ({
+      ...prev,
+      [type]: [...prev[type], item]
+    }));
+    setFavoritesOrder(prev => ({
+      ...prev,
+      [type]: [...prev[type], item.id]
+    }));
+  };
 
-     const removeFavorite = (type, itemId) => {
-       setFavorites(prev => {
-         const newFavorites = {
-           ...prev,
-           [type]: prev[type].filter(item => item.id !== itemId)
-         };
-         localStorage.setItem('favorites', JSON.stringify(newFavorites));
-         return newFavorites;
-       });
-     };
+  const removeFavorite = (type, id) => {
+    setFavorites(prev => ({
+      ...prev,
+      [type]: prev[type].filter(item => item.id !== id)
+    }));
+    setFavoritesOrder(prev => ({
+      ...prev,
+      [type]: prev[type].filter(itemId => itemId !== id)
+    }));
+  };
 
-     return (
-       <FavoritesContext.Provider value={{ favorites, addFavorite, removeFavorite }}>
-         {children}
-       </FavoritesContext.Provider>
-     );
-   };
+  const reorderFavorites = (type, newOrder) => {
+    setFavoritesOrder(prev => ({
+      ...prev,
+      [type]: newOrder
+    }));
+  };
+
+  return (
+    <FavoritesContext.Provider
+      value={{
+        favorites,
+        favoritesOrder,
+        addFavorite,
+        removeFavorite,
+        reorderFavorites
+      }}
+    >
+      {children}
+    </FavoritesContext.Provider>
+  );
+};
+
+export const useFavorites = () => {
+  const context = useContext(FavoritesContext);
+  if (context === undefined) {
+    throw new Error('useFavorites must be used within a FavoritesProvider');
+  }
+  return context;
+};

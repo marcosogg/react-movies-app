@@ -1,33 +1,19 @@
 import React from 'react';
-   import { useFavorites } from '../context/FavoritesContext';
-   import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import OrderedFavorites from './OrderedFavorites';
 
-   const Favorites = () => {
-     const { favorites, removeFavorite } = useFavorites();
+const Favorites = () => {
+  const { t } = useTranslation();
 
-     return (
-       <div>
-         <h2>Favorite Actors</h2>
-         <ul>
-           {favorites.actors.map(actor => (
-             <li key={actor.id}>
-               <Link to={`/actor/${actor.id}`}>{actor.name}</Link>
-               <button onClick={() => removeFavorite('actors', actor.id)}>Remove</button>
-             </li>
-           ))}
-         </ul>
+  return (
+    <div>
+      <h2>{t('favorites')}</h2>
+      <h3>{t('favoriteActors')}</h3>
+      <OrderedFavorites type="actors" />
+      <h3>{t('favoriteTVSeries')}</h3>
+      <OrderedFavorites type="tvSeries" />
+    </div>
+  );
+};
 
-         <h2>Favorite TV Series</h2>
-         <ul>
-           {favorites.tvSeries.map(series => (
-             <li key={series.id}>
-               <Link to={`/tv/${series.id}`}>{series.name}</Link>
-               <button onClick={() => removeFavorite('tvSeries', series.id)}>Remove</button>
-             </li>
-           ))}
-         </ul>
-       </div>
-     );
-   };
-
-   export default Favorites;
+export default Favorites;
