@@ -1,40 +1,37 @@
 import React, { useState } from 'react';
 import { useQuery } from 'react-query';
-import { useTranslation } from 'react-i18next';
 import { getPopularMovies } from '../api/tmdb-api';
 import MovieCard from './MovieCard';
 
 const PopularMovies = () => {
-  const { t } = useTranslation();
   const [page, setPage] = useState(1);
   const { data, isLoading, isError, error } = useQuery(['popularMovies', page], () => getPopularMovies(page));
 
-  if (isLoading) return <div className="text-center mt-8">{t('loading')}</div>;
-  if (isError) return <div className="text-center mt-8 text-red-500">{t('error')}: {error.message}</div>;
+  if (isLoading) return <div className="text-center py-10">Loading...</div>;
+  if (isError) return <div className="text-center py-10">Error: {error.message}</div>;
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">{t('popularMovies')}</h1>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-        {data.results.map((movie) => (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <h2 className="text-3xl font-bold mb-8">Popular Movies</h2>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {data.results.map(movie => (
           <MovieCard key={movie.id} movie={movie} />
         ))}
       </div>
-      <div className="mt-8 flex justify-center space-x-4">
-        <button
-          onClick={() => setPage((old) => Math.max(old - 1, 1))}
+      <div className="flex justify-center mt-8">
+        <button 
+          onClick={() => setPage(old => Math.max(old - 1, 1))} 
           disabled={page === 1}
-          className="px-4 py-2 bg-accent-red text-white rounded disabled:bg-gray-300 transition-colors"
+          className="bg-accent text-white font-bold py-2 px-4 rounded mr-2 disabled:opacity-50"
         >
-          {t('previousPage')}
+          Previous
         </button>
-        <span className="px-4 py-2">{t('page')} {page}</span>
-        <button
-          onClick={() => setPage((old) => old + 1)}
-          disabled={!data.results.length}
-          className="px-4 py-2 bg-accent-red text-white rounded disabled:bg-gray-300 transition-colors"
+        <button 
+          onClick={() => setPage(old => (!data.total_pages || old < data.total_pages) ? old + 1 : old)}
+          disabled={page === (data.total_pages || 1)}
+          className="bg-accent text-white font-bold py-2 px-4 rounded ml-2 disabled:opacity-50"
         >
-          {t('nextPage')}
+          Next
         </button>
       </div>
     </div>
