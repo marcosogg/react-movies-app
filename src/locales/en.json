@@ -66,5 +66,9 @@
   "knownFor": "Known For",
   "homeDescription": "Discover the latest movies, TV series, and your favorite actors all in one place.",
   "exploreMovies": "Explore Movies",
-  "featuredSections": "Featured Sections"
+  "featuredSections": "Featured Sections",
+  "playlistNotFound": "Playlist not found",
+  "errorFetchingPlaylist": "Error fetching playlist",
+  "View Details": "View Details",
+  "Back to Playlists": "Back to Playlists"
 }

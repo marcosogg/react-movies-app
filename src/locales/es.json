@@ -66,5 +66,9 @@
   "knownFor": "Conocido Por",
   "homeDescription": "Descubre las últimas películas, series de TV y tus actores favoritos, todo en un solo lugar.",
   "exploreMovies": "Explorar Películas",
-  "featuredSections": "Secciones Destacadas"
+  "featuredSections": "Secciones Destacadas",
+  "playlistNotFound": "Lista de reproducción no encontrada",
+  "errorFetchingPlaylist": "Error al obtener la lista de reproducción",
+  "View Details": "Ver Detalles",
+  "Back to Playlists": "Volver a las Listas"
 }
