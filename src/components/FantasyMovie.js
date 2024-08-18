@@ -63,44 +63,79 @@ const FantasyMovie = () => {
     const fileName = `${Math.random()}.${fileExt}`;
     const filePath = `${user.id}/${fileName}`;
 
-    const { error: uploadError } = await supabase.storage
-      .from('movie-posters')
-      .upload(filePath, poster);
+    try {
+      const { error: uploadError, data } = await supabase.storage
+        .from('movie-posters')
+        .upload(filePath, poster);
 
-    if (uploadError) {
-      throw uploadError;
+      if (uploadError) {
+        console.error('Upload error:', uploadError);
+        throw uploadError;
+      }
+
+      // Get public URL
+      const { data: { publicUrl }, error: urlError } = supabase.storage
+        .from('movie-posters')
+        .getPublicUrl(filePath);
+
+      if (urlError) {
+        console.error('URL error:', urlError);
+        throw urlError;
+      }
+
+      return publicUrl;
+    } catch (error) {
+      console.error('Poster upload failed:', error);
+      throw error;
     }
-
-    return filePath;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
-
+  
+    console.log('Current user:', user); // Log the entire user object
+  
+    if (!user || !user.id) {
+      console.error('User is not authenticated');
+      alert(t('userNotAuthenticated'));
+      return;
+    }
+  
     try {
-      const posterPath = await uploadPoster();
-
+      console.log('Uploading poster...');
+      const posterUrl = await uploadPoster();
+      console.log('Poster uploaded successfully:', posterUrl);
+  
+      const movieData = {
+        user_id: user.id,
+        title: movie.title,
+        overview: movie.overview,
+        genres: movie.genres.split(',').map(genre => genre.trim()),
+        release_date: movie.releaseDate,
+        runtime: parseInt(movie.runtime, 10),
+        production_companies: movie.productionCompanies.split(',').map(company => company.trim()),
+        movie_cast: movie.cast.split(',').map(actor => actor.trim()),
+        director: movie.director,
+        budget: parseInt(movie.budget, 10),
+        tagline: movie.tagline,
+        poster_path: posterUrl
+      };
+      console.log('Inserting movie data:', movieData);
+  
       const { data, error } = await supabase
         .from('fantasy_movies')
-        .insert([{
-          title: movie.title,
-          overview: movie.overview,
-          genres: movie.genres,
-          release_date: movie.releaseDate,
-          runtime: movie.runtime,
-          production_companies: movie.productionCompanies,
-          "cast": movie.cast,
-          director: movie.director,
-          budget: movie.budget,
-          tagline: movie.tagline,
-          poster_path: posterPath,
-          user_id: user.id
-        }]);
-
-      if (error) throw error;
-
+        .insert([movieData]);
+  
+      if (error) {
+        console.error('Supabase error:', error);
+        console.error('Error details:', error.details, error.hint, error.message);
+        throw error;
+      }
+  
+      console.log('Movie inserted successfully:', data);
       alert(t('fantasyMovieCreated'));
+      // Reset form and state
       setMovie({
         title: '',
         overview: '',
@@ -115,9 +150,12 @@ const FantasyMovie = () => {
       });
       setPoster(null);
     } catch (error) {
-      alert(error.message);
+      console.error('Error creating fantasy movie:', error);
+      console.error('Error details:', error.details, error.hint, error.message);
+      alert(t('errorCreatingMovie') + ': ' + error.message);
     }
   };
+  
 
   return (
     <div className="max-w-md mx-auto mt-8 p-6 bg-secondary rounded-lg shadow-lg">

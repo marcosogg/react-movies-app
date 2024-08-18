@@ -22,7 +22,8 @@ const Layout = ({ children }) => {
               <NavLink to="/search">{t('nav.search')}</NavLink>
               {user && (
                 <>
-                  <NavLink to="/fantasy-movie">{t('nav.fantasyMovie')}</NavLink>
+                  <NavLink to="/fantasy-movie">{t('nav.createFantasyMovie')}</NavLink>
+                  <NavLink to="/fantasy-movies">{t('nav.myFantasyMovies')}</NavLink>
                   <NavLink to="/favorites">{t('Favorites')}</NavLink>
                   <NavLink to="/themed-playlist">{t('Create Playlist')}</NavLink>
                   <NavLink to="/playlists">{t('View Playlists')}</NavLink>
