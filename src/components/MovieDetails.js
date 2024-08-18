@@ -1,3 +1,4 @@
+// src/components/MovieDetails.js
 import React from 'react';
 import { useQuery } from 'react-query';
 import { useParams } from 'react-router-dom';
@@ -5,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { getMovieDetails } from '../api/tmdb-api';
 import { useFavorites } from '../context/FavoritesContext';
 import { useAuth } from '../context/AuthContext';
+import Button from './ui/Button';
 
 const MovieDetails = () => {
   const { id } = useParams();
@@ -59,12 +61,12 @@ const MovieDetails = () => {
             <p className="text-gray-600 mb-4">{movie.tagline}</p>
             <p className="mb-4">{movie.overview}</p>
             {user && (
-              <button
+              <Button
                 onClick={handleFavoriteClick}
-                className={`mt-4 px-4 py-2 rounded ${isFavorite ? 'bg-red-500' : 'bg-blue-500'} text-white`}
+                variant={isFavorite ? "secondary" : "primary"}
               >
                 {isFavorite ? t('removeFromFavorites') : t('addToFavorites')}
-              </button>
+              </Button>
             )}
           </div>
         </div>

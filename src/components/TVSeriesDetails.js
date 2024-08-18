@@ -1,9 +1,11 @@
+// src/components/TVSeriesDetails.js
 import React from 'react';
 import { useQuery } from 'react-query';
 import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { getTVSeriesDetails } from '../api/tmdb-api';
 import { useFavorites } from '../context/FavoritesContext';
+import Button from './ui/Button';
 
 const TVSeriesDetails = () => {
   const { id } = useParams();
@@ -54,12 +56,12 @@ const TVSeriesDetails = () => {
           <div className="mb-4">
             <strong>{t('rating')}:</strong> {series.vote_average.toFixed(1)}/10
           </div>
-          <button
+          <Button
             onClick={handleFavoriteClick}
-            className={`mt-4 px-4 py-2 rounded ${isFavorite ? 'bg-red-500' : 'bg-blue-500'} text-white`}
+            variant={isFavorite ? "secondary" : "primary"}
           >
             {isFavorite ? t('removeFromFavorites') : t('addToFavorites')}
-          </button>
+          </Button>
           <h2 className="text-2xl font-bold mt-8 mb-4">{t('cast')}</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
             {series.credits.cast.slice(0, 8).map((actor) => (

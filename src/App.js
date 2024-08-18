@@ -20,6 +20,7 @@ const PublicRoute = lazy(() => import('./components/PublicRoute'));
 const FantasyMovie = lazy(() => import('./components/FantasyMovie'));
 const Favorites = lazy(() => import('./components/Favorites'));
 const ThemedMoviePlaylist = lazy(() => import('./components/ThemedMoviePlaylist'));
+const PlaylistDisplay = lazy(() => import('./components/PlaylistDisplay'));
 
 const queryClient = new QueryClient();
 
@@ -46,6 +47,7 @@ function App() {
                     <Route path="/fantasy-movie" element={<FantasyMovie />} />
                     <Route path="/favorites" element={<Favorites />} />
                     <Route path="/themed-playlist" element={<ThemedMoviePlaylist />} />
+                    <Route path="/playlists" element={<PlaylistDisplay />} />
                   </Route>
                   
                   <Route element={<PublicRoute />}>

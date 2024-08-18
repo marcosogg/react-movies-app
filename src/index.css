@@ -77,6 +77,33 @@ html {
   .section-title {
     @apply text-3xl font-bold mb-6;
   }
+
+  @layer components {
+    .form-container {
+      @apply max-w-md mx-auto mt-8;
+    }
+
+    .form-container form {
+      @apply space-y-4;
+    }
+
+    .form-container h1,
+    .form-container h2 {
+      @apply text-2xl font-bold mb-4;
+    }
+
+    .form-container input:not([type="submit"]),
+    .form-container select,
+    .form-container textarea {
+      @apply w-full px-3 py-2 border rounded text-gray-800 bg-white;
+    }
+
+    .form-container button[type="submit"],
+    .form-container input[type="submit"] {
+      @apply w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600;
+    }
+  }
+
 }
 
 /* Ensure images don't exceed their container */

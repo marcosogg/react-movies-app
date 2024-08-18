@@ -3,39 +3,41 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import LanguageSwitcher from './LanguageSwitcher';
 import { useAuth } from '../context/AuthContext';
+import { Button } from './ui';
 
 const Layout = ({ children }) => {
   const { t } = useTranslation();
   const { user, signOut } = useAuth();
 
   return (
-    <div className="flex flex-col min-h-screen bg-dark-gray text-white">
-      <header className="fixed top-0 left-0 right-0 bg-dark-gray bg-opacity-90 text-white p-4 z-10">
+    <div className="flex flex-col min-h-screen bg-dark-bg text-text-white">
+      <header className="fixed top-0 left-0 right-0 bg-primary bg-opacity-90 p-4 z-10">
         <div className="container mx-auto flex justify-between items-center">
           <Link to="/" className="text-2xl font-bold text-accent-red">Movies App</Link>
           <nav className="hidden md:block">
             <ul className="flex space-x-4">
-              <li><Link to="/popular-movies" className="hover:text-accent-red transition-colors">{t('nav.movies')}</Link></li>
-              <li><Link to="/actors" className="hover:text-accent-red transition-colors">{t('nav.actors')}</Link></li>
-              <li><Link to="/tv-series" className="hover:text-accent-red transition-colors">{t('nav.tvSeries')}</Link></li>
-              <li><Link to="/search" className="hover:text-accent-red transition-colors">{t('nav.search')}</Link></li>
+              <NavLink to="/popular-movies">{t('nav.movies')}</NavLink>
+              <NavLink to="/actors">{t('nav.actors')}</NavLink>
+              <NavLink to="/tv-series">{t('nav.tvSeries')}</NavLink>
+              <NavLink to="/search">{t('nav.search')}</NavLink>
               {user && (
                 <>
-                  <li><Link to="/fantasy-movie" className="hover:text-accent-red transition-colors">{t('nav.fantasyMovie')}</Link></li>
-                  <li><Link to="/favorites" className="hover:text-accent-red transition-colors">{t('Favorites')}</Link></li>
-                  <li><Link to="/themed-playlist" className="hover:text-accent-red transition-colors">{t('Playlist')}</Link></li>
+                  <NavLink to="/fantasy-movie">{t('nav.fantasyMovie')}</NavLink>
+                  <NavLink to="/favorites">{t('Favorites')}</NavLink>
+                  <NavLink to="/themed-playlist">{t('Create Playlist')}</NavLink>
+                  <NavLink to="/playlists">{t('View Playlists')}</NavLink>
                 </>
               )}
               {user ? (
-                <li><button onClick={signOut} className="hover:text-accent-red transition-colors">{t('logout')}</button></li>
+                <li><Button onClick={signOut} variant="secondary">{t('logout')}</Button></li>
               ) : (
-                <li><Link to="/login" className="hover:text-accent-red transition-colors">{t('login')}</Link></li>
+                <NavLink to="/login">{t('login')}</NavLink>
               )}
             </ul>
           </nav>
           <div className="flex items-center space-x-4">
             <LanguageSwitcher />
-            <button className="md:hidden">
+            <button className="md:hidden text-text-white">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               </svg>
@@ -48,42 +50,15 @@ const Layout = ({ children }) => {
         {children}
       </main>
       
-      <footer className="bg-dark-gray text-white p-8">
+      <footer className="bg-primary text-text-white p-8">
         <div className="container mx-auto text-center">
-          <div className="flex justify-center space-x-4 mb-4">
-            {/* Add social media icons here */}
-          </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-            <div>
-              <h3 className="font-bold mb-2">Company</h3>
-              <ul>
-                <li><a href="#" className="hover:text-accent-red transition-colors">About Us</a></li>
-                <li><a href="#" className="hover:text-accent-red transition-colors">Careers</a></li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-bold mb-2">Support</h3>
-              <ul>
-                <li><a href="#" className="hover:text-accent-red transition-colors">Help Center</a></li>
-                <li><a href="#" className="hover:text-accent-red transition-colors">Contact Us</a></li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-bold mb-2">Legal</h3>
-              <ul>
-                <li><a href="#" className="hover:text-accent-red transition-colors">Terms of Service</a></li>
-                <li><a href="#" className="hover:text-accent-red transition-colors">Privacy Policy</a></li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-bold mb-2">Follow Us</h3>
-              <ul>
-                <li><a href="#" className="hover:text-accent-red transition-colors">Facebook</a></li>
-                <li><a href="#" className="hover:text-accent-red transition-colors">Twitter</a></li>
-              </ul>
-            </div>
+            <FooterSection title="Company" links={[{to: '/about', text: 'About Us'}, {to: '/careers', text: 'Careers'}]} />
+            <FooterSection title="Support" links={[{to: '/help', text: 'Help Center'}, {to: '/contact', text: 'Contact Us'}]} />
+            <FooterSection title="Legal" links={[{to: '/terms', text: 'Terms of Service'}, {to: '/privacy', text: 'Privacy Policy'}]} />
+            <FooterSection title="Follow Us" links={[{to: '/facebook', text: 'Facebook'}, {to: '/twitter', text: 'Twitter'}]} />
           </div>
-          <div className="text-sm">
+          <div className="text-sm text-light-gray">
             &copy; 2024 Movies App. All rights reserved.
           </div>
         </div>
@@ -91,5 +66,28 @@ const Layout = ({ children }) => {
     </div>
   );
 };
+
+const NavLink = ({ to, children }) => (
+  <li>
+    <Link to={to} className="hover:text-accent-red transition-colors duration-300">
+      {children}
+    </Link>
+  </li>
+);
+
+const FooterSection = ({ title, links }) => (
+  <div>
+    <h3 className="font-bold mb-2">{title}</h3>
+    <ul>
+      {links.map((link, index) => (
+        <li key={index}>
+          <Link to={link.to} className="hover:text-accent-red transition-colors duration-300">
+            {link.text}
+          </Link>
+        </li>
+      ))}
+    </ul>
+  </div>
+);
 
 export default Layout;

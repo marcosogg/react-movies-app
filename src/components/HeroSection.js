@@ -1,6 +1,7 @@
+// src/components/HeroSection.js
 import React from 'react';
-import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import Button from './ui/Button';
 
 const HeroSection = () => {
   const { t } = useTranslation();
@@ -16,12 +17,9 @@ const HeroSection = () => {
       <div className="relative z-20 text-center px-4">
         <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">{t('welcome')}</h1>
         <p className="text-xl md:text-2xl mb-8">{t('homeDescription')}</p>
-        <Link 
-          to="/popular-movies" 
-          className="bg-accent-red hover:bg-red-700 text-white font-bold py-2 px-6 rounded-full text-lg transition duration-300"
-        >
+        <Button variant="primary" to="/popular-movies">
           {t('exploreMovies')}
-        </Link>
+        </Button>
       </div>
     </div>
   );
