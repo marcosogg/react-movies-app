@@ -22,8 +22,8 @@ const Layout = ({ children }) => {
               {user && (
                 <>
                   <li><Link to="/fantasy-movie" className="hover:text-accent-red transition-colors">{t('nav.fantasyMovie')}</Link></li>
-                  <li><Link to="/favorites" className="hover:text-accent-red transition-colors">{t('nav.favorites')}</Link></li>
-                  <li><Link to="/themed-playlist" className="hover:text-accent-red transition-colors">{t('nav.themedPlaylist')}</Link></li>
+                  <li><Link to="/favorites" className="hover:text-accent-red transition-colors">{t('Favorites')}</Link></li>
+                  <li><Link to="/themed-playlist" className="hover:text-accent-red transition-colors">{t('Playlist')}</Link></li>
                 </>
               )}
               {user ? (

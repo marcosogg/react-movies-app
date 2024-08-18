@@ -20,9 +20,9 @@ const Home = () => {
       {/* Featured Sections */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <FeaturedSection title="Popular Movies" link="/movies" />
-          <FeaturedSection title="Top Actors" link="/actors" />
-          <FeaturedSection title="TV Series" link="/tv" />
+          <FeaturedSection title="Movies" link="/movies" />
+          <FeaturedSection title="Actors" link="/actors" />
+          <FeaturedSection title="TV Series" link="/tv-series" />
         </div>
       </div>
     </div>

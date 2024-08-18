@@ -22,7 +22,11 @@ const Actors = () => {
     if (isFavorite) {
       removeFavorite('actors', actor.id);
     } else {
-      addFavorite('actors', actor);
+      addFavorite('actors', {
+        id: actor.id,
+        name: actor.name,
+        profile_path: actor.profile_path
+      });
     }
   }, [favorites.actors, addFavorite, removeFavorite]);
 
@@ -31,7 +35,7 @@ const Actors = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h2 className="section-title">{t('popularActors')}</h2>
+      <h2 className="section-title">{t('Actors')}</h2>
       <Carousel>
         {data.results.map((actor) => (
           <div key={actor.id} className="flex-none w-48 mr-4">

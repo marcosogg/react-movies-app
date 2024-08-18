@@ -17,7 +17,7 @@ const Navigation = () => {
             <div className="ml-10 flex items-baseline space-x-4">
               <NavLink to="/movies">Movies</NavLink>
               <NavLink to="/actors">Actors</NavLink>
-              <NavLink to="/tv">TV Series</NavLink>
+              <NavLink to="/tv-series">TV Series</NavLink>
               <NavLink to="/search">Search</NavLink>
               {user && <NavLink to="/favorites">Favorites</NavLink>}
             </div>

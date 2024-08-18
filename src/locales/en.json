@@ -1,7 +1,7 @@
 {
   "nav": {
     "home": "Home",
-    "movies": "Popular Movies",
+    "movies": "Movies",
     "actors": "Actors",
     "tvSeries": "TV Series",
     "fantasyMovie": "Create Fantasy Movie",
@@ -22,7 +22,7 @@
     "results": "Search Results"
   },
   "welcome": "Welcome to the Movies App",
-  "popularMovies": "Popular Movies",
+  "popularMovies": "Movies",
   "actors": "Actors",
   "tvSeries": "TV Series",
   "createFantasyMovie": "Create Fantasy Movie",

@@ -25,42 +25,93 @@ export const FavoritesProvider = ({ children }) => {
     if (error) {
       console.error('Error fetching favorites:', error);
     } else {
-      const movies = data.filter(item => item.type === 'movie');
-      const actors = data.filter(item => item.type === 'actor');
-      const tvSeries = data.filter(item => item.type === 'tvSeries');
+      console.log('Fetched favorites:', data);
+      const parsedData = data.map(item => ({
+        ...item,
+        item_data: typeof item.item_data === 'string' ? JSON.parse(item.item_data) : item.item_data
+      }));
+      const movies = parsedData.filter(item => item.type === 'movies');
+      const actors = parsedData.filter(item => item.type === 'actors');
+      const tvSeries = parsedData.filter(item => item.type === 'tvSeries');
       setFavorites({ movies, actors, tvSeries });
     }
   };
 
   const addFavorite = async (type, item) => {
-    const { data, error } = await supabase
-      .from('favorites')
-      .insert({ user_id: user.id, type, item_id: item.id, item_data: item })
-      .select();
-
-    if (error) {
-      console.error('Error adding favorite:', error);
-    } else {
+    if (!user) {
+      console.error('User is not authenticated');
+      return;
+    }
+  
+    if (!item || !item.id) {
+      console.error('Invalid item data:', item);
+      return;
+    }
+  
+    const favoriteItem = {
+      user_id: user.id,
+      type,
+      item_id: item.id,
+      item_data: {
+        id: item.id,
+        title: item.title || item.name,
+        poster_path: item.poster_path,
+        profile_path: item.profile_path,
+      }
+    };
+  
+    console.log('Adding favorite:', favoriteItem);
+  
+    try {
+      const { data, error } = await supabase
+        .from('favorites')
+        .insert(favoriteItem)
+        .select();
+  
+      if (error) {
+        console.error('Supabase error adding favorite:', error);
+        console.error('Error details:', error.details, error.hint, error.message);
+        throw error;
+      }
+  
+      console.log('Favorite added successfully:', data);
+  
+      // Ensure the item_data is in the correct format
+      const newFavorite = {
+        ...data[0],
+        item_data: favoriteItem.item_data
+      };
+  
       setFavorites(prev => ({
         ...prev,
-        [type]: [...prev[type], data[0]]
+        [type]: [...prev[type], newFavorite]
       }));
+    } catch (error) {
+      console.error('Error adding favorite:', error);
+      if (error.message.includes('duplicate key value violates unique constraint')) {
+        console.log('This item is already a favorite');
+      }
     }
   };
 
   const removeFavorite = async (type, itemId) => {
-    const { error } = await supabase
-      .from('favorites')
-      .delete()
-      .match({ user_id: user.id, type, item_id: itemId });
+    try {
+      const { error } = await supabase
+        .from('favorites')
+        .delete()
+        .match({ user_id: user.id, type, item_id: itemId });
 
-    if (error) {
-      console.error('Error removing favorite:', error);
-    } else {
+      if (error) {
+        console.error('Supabase error removing favorite:', error);
+        throw error;
+      }
+
       setFavorites(prev => ({
         ...prev,
         [type]: prev[type].filter(item => item.item_id !== itemId)
       }));
+    } catch (error) {
+      console.error('Error removing favorite:', error);
     }
   };
 
@@ -70,3 +121,5 @@ export const FavoritesProvider = ({ children }) => {
     </FavoritesContext.Provider>
   );
 };
+
+export default FavoritesProvider;

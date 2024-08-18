@@ -38,16 +38,24 @@ const ThemedMoviePlaylist = () => {
       return;
     }
 
-    const { data, error } = await supabase
-      .from('themed_playlists')
-      .insert({ user_id: user.id, name: playlist.name, movies: playlist.movies });
+    try {
+      console.log('Saving playlist:', { user_id: user.id, name: playlist.name, movies: playlist.movies });
+      const { data, error } = await supabase
+        .from('themed_playlists')
+        .insert({ 
+          user_id: user.id, 
+          name: playlist.name, 
+          movies: JSON.stringify(playlist.movies) // Convert movies array to JSON string
+        });
 
-    if (error) {
-      console.error('Error saving playlist:', error);
-      alert(t('errorSavingPlaylist'));
-    } else {
+      if (error) throw error;
+
+      console.log('Playlist saved successfully:', data);
       alert(t('playlistSaved'));
       setPlaylist({ name: '', movies: [] });
+    } catch (error) {
+      console.error('Error saving playlist:', error);
+      alert(t('errorSavingPlaylist'));
     }
   };
 

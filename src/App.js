@@ -34,6 +34,7 @@ function App() {
                 <Routes>
                   <Route path="/" element={<Home />} />
                   <Route path="/popular-movies" element={<PopularMovies />} />
+                  <Route path="/movies" element={<PopularMovies />} /> {/* Added this line */}
                   <Route path="/actors" element={<Actors />} />
                   <Route path="/tv-series" element={<TVSeries />} />
                   <Route path="/movie/:id" element={<MovieDetails />} />
