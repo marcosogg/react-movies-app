@@ -5,7 +5,7 @@
     <h1 align="center">REACT-MOVIES-APP</h1>
 </p>
 <p align="center">
-    <em>HTTP error 401 for prompt `slogan`</em>
+    <em>`slogan`</em>
 </p>
 <p align="center">
 	<img src="https://img.shields.io/github/license/marcosogg/react-movies-app?style=flat&color=0080ff" alt="license">
@@ -52,13 +52,13 @@
 
 ## 📍 Overview
 
-HTTP error 401 for prompt `overview`
+`overview`
 
 ---
 
 ## 📦 Features
 
-HTTP error 401 for prompt `features`
+`features`
 
 ---
 
