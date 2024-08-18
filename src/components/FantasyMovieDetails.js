@@ -126,13 +126,13 @@ const FantasyMovieDetails = () => {
             onClick={() => navigate('/fantasy-movies')}
             variant="secondary"
           >
-            {t('backToList')}
+            {t('Back To List')}
           </Button>
           <Button
             onClick={handleDelete}
             variant="primary"
           >
-            {t('deleteMovie')}
+            {t('Delete Movie')}
           </Button>
         </div>
       </div>

@@ -1,50 +1,145 @@
-import React from 'react';
+// src/components/Layout.js
+import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import LanguageSwitcher from './LanguageSwitcher';
 import { useAuth } from '../context/AuthContext';
 import { Button } from './ui';
 
+const NavDropdown = ({ title, items }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
+  const timeoutRef = useRef(null);
+
+  const handleMouseEnter = () => {
+    clearTimeout(timeoutRef.current);
+    setIsOpen(true);
+  };
+
+  const handleMouseLeave = () => {
+    timeoutRef.current = setTimeout(() => {
+      setIsOpen(false);
+    }, 300); // 300ms delay before closing
+  };
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
+
+  return (
+    <div 
+      className="nav-dropdown-container"
+      ref={dropdownRef}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
+      <button className="nav-dropdown-button">
+        {title}
+      </button>
+      {isOpen && (
+        <div className="nav-dropdown-menu">
+          {items.map((item, index) => (
+            <Link
+              key={index}
+              to={item.to}
+              className="nav-dropdown-item"
+            >
+              {item.text}
+            </Link>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
 const Layout = ({ children }) => {
   const { t } = useTranslation();
   const { user, signOut } = useAuth();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
     <div className="flex flex-col min-h-screen bg-dark-bg text-text-white">
       <header className="fixed top-0 left-0 right-0 bg-primary bg-opacity-90 p-4 z-10">
         <div className="container mx-auto flex justify-between items-center">
           <Link to="/" className="text-2xl font-bold text-accent-red">Movies App</Link>
-          <nav className="hidden md:block">
-            <ul className="flex space-x-4">
-              <NavLink to="/popular-movies">{t('nav.movies')}</NavLink>
-              <NavLink to="/actors">{t('nav.actors')}</NavLink>
-              <NavLink to="/tv-series">{t('nav.tvSeries')}</NavLink>
-              <NavLink to="/search">{t('nav.search')}</NavLink>
-              {user && (
-                <>
-                  <NavLink to="/fantasy-movie">{t('nav.createFantasyMovie')}</NavLink>
-                  <NavLink to="/fantasy-movies">{t('nav.myFantasyMovies')}</NavLink>
-                  <NavLink to="/favorites">{t('Favorites')}</NavLink>
-                  <NavLink to="/themed-playlist">{t('Create Playlist')}</NavLink>
-                  <NavLink to="/playlists">{t('View Playlists')}</NavLink>
-                </>
-              )}
-              {user ? (
-                <li><Button onClick={signOut} variant="secondary">{t('logout')}</Button></li>
-              ) : (
-                <NavLink to="/login">{t('login')}</NavLink>
-              )}
-            </ul>
+
+          <nav className="hidden md:flex space-x-6 items-center">
+            <NavDropdown
+              title={t('nav.movies')}
+              items={[
+                { to: "/popular-movies", text: t('Popular Movies') },
+                { to: "/fantasy-movie", text: t('Create Fantasy Movie') },
+                { to: "/fantasy-movies", text: t('My Fantasy Movies') },
+              ]}
+            />
+            <NavDropdown
+              title={t('TV Series')}
+              items={[
+                { to: "/tv-series", text: t('nav.tvSeries') },
+              ]}
+            />
+            <NavDropdown
+              title={t('People')}
+              items={[
+                { to: "/actors", text: t('nav.actors') },
+              ]}
+            />
+            {user && (
+              <NavDropdown
+                title={t('My Stuff')}
+                items={[
+                  { to: "/favorites", text: t('Favorites') },
+                  { to: "/themed-playlist", text: t('Create Playlist') },
+                  { to: "/playlists", text: t('View Playlists') },
+                ]}
+              />
+            )}
           </nav>
+
           <div className="flex items-center space-x-4">
+            <Link to="/search" className="text-white hover:text-accent-red">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </Link>
             <LanguageSwitcher />
-            <button className="md:hidden text-text-white">
+            {user ? (
+              <Button onClick={signOut} variant="secondary">{t('logout')}</Button>
+            ) : (
+              <Link to="/login" className="text-white hover:text-accent-red">{t('login')}</Link>
+            )}
+            <button
+              className="md:hidden text-white"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
           </div>
         </div>
+
+        {mobileMenuOpen && (
+          <div className="md:hidden mt-4 bg-primary p-4">
+            <Link to="/popular-movies" className="block py-2 text-white hover:text-accent-red">{t('nav.popularMovies')}</Link>
+            <Link to="/tv-series" className="block py-2 text-white hover:text-accent-red">{t('nav.tvSeries')}</Link>
+            <Link to="/actors" className="block py-2 text-white hover:text-accent-red">{t('nav.actors')}</Link>
+            {user && (
+              <>
+                <Link to="/fantasy-movie" className="block py-2 text-white hover:text-accent-red">{t('nav.createFantasyMovie')}</Link>
+                <Link to="/fantasy-movies" className="block py-2 text-white hover:text-accent-red">{t('nav.myFantasyMovies')}</Link>
+                <Link to="/favorites" className="block py-2 text-white hover:text-accent-red">{t('Favorites')}</Link>
+                <Link to="/themed-playlist" className="block py-2 text-white hover:text-accent-red">{t('Create Playlist')}</Link>
+                <Link to="/playlists" className="block py-2 text-white hover:text-accent-red">{t('View Playlists')}</Link>
+              </>
+            )}
+          </div>
+        )}
       </header>
       
       <main className="flex-grow container mx-auto px-4 pt-20">
@@ -67,14 +162,6 @@ const Layout = ({ children }) => {
     </div>
   );
 };
-
-const NavLink = ({ to, children }) => (
-  <li>
-    <Link to={to} className="hover:text-accent-red transition-colors duration-300">
-      {children}
-    </Link>
-  </li>
-);
 
 const FooterSection = ({ title, links }) => (
   <div>
